@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Requests - Admin - <%= brand.name %><%= brand.suffix %></title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <%- include('../../shared/head-meta') %>
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <%- include('../shared/nav', { brand: brand, query: '', active: '' }) %>
+
+  <main class="nfa">
+    <header class="nfa-header">
+      <a href="/laba-panel-2026" class="nfa-back">← Back to Admin</a>
+      <h1>Movie Requests</h1>
+      <p><%= requests.length %> request<%= requests.length === 1 ? '' : 's' %></p>
+    </header>
+
+    <% if (!requests.length) { %>
+      <p class="nfa-empty">No requests yet.</p>
+    <% } else { %>
+      <div class="nfa-table">
+        <div class="nfa-row nfa-row-head">
+          <div>Title</div>
+          <div>Year</div>
+          <div>Status</div>
+          <div>Requested By</div>
+          <div>Contact</div>
+          <div>Date</div>
+        </div>
+        <% requests.forEach(function (r) { %>
+          <div class="nfa-row">
+            <div class="nfa-row-title"><%= r.title %></div>
+            <div><%= r.year || '—' %></div>
+            <div><span class="nfa-badge nfa-badge-<%= r.status %>"><%= r.status %></span></div>
+            <div><%= r.requester_name || '—' %></div>
+            <div class="nfa-row-meta"><%= r.requester_contact || '—' %></div>
+            <div class="nfa-row-meta"><%= r.created_at %></div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+
+  <%- include('../shared/footer', { brand: brand }) %>
+</body>
+</html>

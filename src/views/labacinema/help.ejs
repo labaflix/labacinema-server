@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Help Center - <%= brand.name %><%= brand.suffix %></title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <%- include('../shared/head-meta') %>
+</head>
+<body>
+  <%- include('../shared/nav', { brand: brand, query: '', active: 'help' }) %>
+
+  <main class="nfh">
+    <!-- Hero -->
+    <section class="nfh-hero">
+      <h1 class="nfh-hero-title">How can we help?</h1>
+      <form class="nfh-search" action="/help" method="get">
+        <svg class="nfh-search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <input type="text" name="q" placeholder="Search help articles" autocomplete="off">
+      </form>
+    </section>
+
+    <!-- Quick topic tiles -->
+    <section class="nfh-topics">
+      <a href="#faq" class="nfh-topic">
+        <div class="nfh-topic-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"></circle>
+            <path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7v.5"></path>
+            <circle cx="12" cy="17" r=".6" fill="currentColor" stroke="none"></circle>
+          </svg>
+        </div>
+        <div class="nfh-topic-body">
+          <h3>FAQs</h3>
+          <p>Common questions answered</p>
+        </div>
+      </a>
+      <a href="#guides" class="nfh-topic">
+        <div class="nfh-topic-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 4h12a3 3 0 0 1 3 3v13H7a3 3 0 0 1-3-3V4z"></path>
+            <path d="M4 17a3 3 0 0 1 3-3h12"></path>
+          </svg>
+        </div>
+        <div class="nfh-topic-body">
+          <h3>Guides</h3>
+          <p>How to watch and download</p>
+        </div>
+      </a>
+      <a href="#contact" class="nfh-topic">
+        <div class="nfh-topic-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+        </div>
+        <div class="nfh-topic-body">
+          <h3>Contact us</h3>
+          <p>Talk to our team</p>
+        </div>
+      </a>
+      <a href="#report" class="nfh-topic">
+        <div class="nfh-topic-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2 3 7v6c0 5 4 8 9 9 5-1 9-4 9-9V7l-9-5z"></path>
+            <line x1="12" y1="8" x2="12" y2="13"></line>
+            <circle cx="12" cy="16.5" r=".6" fill="currentColor" stroke="none"></circle>
+          </svg>
+        </div>
+        <div class="nfh-topic-body">
+          <h3>Report an issue</h3>
+          <p>Broken video or bug</p>
+        </div>
+      </a>
+    </section>
+
+    <!-- FAQ section -->
+    <section class="nfh-section" id="faq">
+      <h2 class="nfh-section-title">Frequently asked questions</h2>
+
+      <details class="nfh-faq" open>
+        <summary>Is LabaCinema really free?</summary>
+        <div class="nfh-faq-body">
+          <p>Yes. Every movie on LabaCinema is completely free to stream and download. No signup, no payment, no hidden fees. Just click and watch.</p>
+        </div>
+      </details>
+
+      <details class="nfh-faq">
+        <summary>Do I need to create an account?</summary>
+        <div class="nfh-faq-body">
+          <p>No account is required for LabaCinema. You can browse, watch and download without signing in. The upcoming paid LabaFlix experience will require login.</p>
+        </div>
+      </details>
+
+      <details class="nfh-faq">
+        <summary>How do I download a movie?</summary>
+        <div class="nfh-faq-body">
+          <p>Open any movie page, then click the <strong>Download</strong> button under the player. Your browser saves the MP4 directly. Downloads are free and unlimited.</p>
+        </div>
+      </details>
+
+      <details class="nfh-faq">
+        <summary>The video won't play. What should I do?</summary>
+        <div class="nfh-faq-body">
+          <p>Try these in order:</p>
+          <ol style="margin:8px 0 0;padding-left:20px;color:var(--netflix-light)">
+            <li>Refresh the page</li>
+            <li>Try a different browser (Chrome, Safari, Firefox)</li>
+            <li>Check your internet connection</li>
+            <li>Clear your browser cache</li>
+          </ol>
+          <p style="margin-top:8px">If it still fails, <a href="#report">report the issue</a>.</p>
+        </div>
+      </details>
+
+      <details class="nfh-faq">
+        <summary>Can I watch on my phone?</summary>
+        <div class="nfh-faq-body">
+          <p>Yes. The site is fully mobile-friendly. Open it in Chrome (Android) or Safari (iOS), rotate to landscape for the best view, and tap any movie to play.</p>
+        </div>
+      </details>
+
+      <details class="nfh-faq">
+        <summary>How do I request a movie?</summary>
+        <div class="nfh-faq-body">
+          <p>Use the <a href="/requests">Movie Requests</a> page, or send us the title directly on <a href="#contact">WhatsApp or Telegram</a>. We add new movies weekly.</p>
+        </div>
+      </details>
+
+      <details class="nfh-faq">
+        <summary>What is LabaFlix?</summary>
+        <div class="nfh-faq-body">
+          <p>LabaFlix is our upcoming premium service at <strong>labaflix.com</strong>. It will include login, watchlist, history, kids mode (LabaTOTO) and downloads for paid members. LabaCinema will stay free forever.</p>
+        </div>
+      </details>
+
+      <details class="nfh-faq">
+        <summary>Is my data safe?</summary>
+        <div class="nfh-faq-body">
+          <p>LabaCinema does not require an account and does not track you. We do not store personal data beyond basic server logs used for reliability.</p>
+        </div>
+      </details>
+    </section>
+
+    <!-- Guides -->
+    <section class="nfh-section" id="guides">
+      <h2 class="nfh-section-title">How-to guides</h2>
+
+      <div class="nfh-guides">
+        <article class="nfh-guide">
+          <h3>Watch a movie</h3>
+          <ol>
+            <li>Find a movie from the Home or Movies page</li>
+            <li>Click the poster</li>
+            <li>Press Play</li>
+          </ol>
+        </article>
+        <article class="nfh-guide">
+          <h3>Download a movie</h3>
+          <ol>
+            <li>Open the movie page</li>
+            <li>Click Download</li>
+            <li>The MP4 saves to your Downloads folder</li>
+          </ol>
+        </article>
+        <article class="nfh-guide">
+          <h3>Search movies</h3>
+          <ol>
+            <li>Click the search icon in the nav</li>
+            <li>Type the title</li>
+            <li>Press Enter or click Search</li>
+          </ol>
+        </article>
+        <article class="nfh-guide">
+          <h3>Watch on mobile</h3>
+          <ol>
+            <li>Open labacinema.online in your browser</li>
+            <li>Rotate to landscape</li>
+            <li>Tap Play on any movie</li>
+          </ol>
+        </article>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="nfh-section" id="contact">
+      <h2 class="nfh-section-title">Contact us</h2>
+      <p class="nfh-lede">We reply within 24 hours. Reach us on any channel below.</p>
+
+            <div class="nfh-contact-list">
+        <a class="nfh-contact-row" href="https://wa.me/256702430965" target="_blank" rel="noopener">
+          <div class="nfh-contact-left">
+            <span class="nfh-contact-logo" data-brand="whatsapp" aria-label="WhatsApp">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.86 9.86 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2m0 1.67c2.2 0 4.27.86 5.82 2.42a8.2 8.2 0 0 1 2.42 5.82c0 4.54-3.7 8.23-8.24 8.23-1.48 0-2.93-.4-4.19-1.15l-.3-.18-3.12.82.83-3.04-.19-.31a8.16 8.16 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.23-8.23m-3.53 4.44c-.17 0-.45.06-.68.31s-.9.88-.9 2.15.92 2.5 1.05 2.67c.13.17 1.8 2.87 4.35 3.92 2.13.87 2.56.7 3.02.65.46-.04 1.48-.6 1.69-1.19.21-.58.21-1.08.15-1.19-.06-.1-.23-.17-.48-.29s-1.48-.73-1.71-.81c-.23-.09-.4-.13-.56.13-.17.26-.65.81-.79.98-.15.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.73-.15-.26-.02-.4.11-.53.11-.11.25-.29.37-.44.12-.15.16-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.36-.77-1.86-.2-.48-.4-.42-.56-.43l-.47-.01z"/>
+              </svg>
+            </span>
+            <span class="nfh-contact-value">0702430965</span>
+          </div>
+          <span class="nfh-contact-arrow">→</span>
+        </a>
+
+        <a class="nfh-contact-row" href="https://t.me/labacinema" target="_blank" rel="noopener">
+          <div class="nfh-contact-left">
+            <span class="nfh-contact-logo" data-brand="telegram" aria-label="Telegram">
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/>
+              </svg>
+            </span>
+            <span class="nfh-contact-value">@labacinema</span>
+          </div>
+          <span class="nfh-contact-arrow">→</span>
+        </a>
+
+        <a class="nfh-contact-row" href="mailto:help@labacinema.online">
+          <div class="nfh-contact-left">
+            <span class="nfh-contact-logo" data-brand="email" aria-label="Email">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+                <path d="M3 7l9 6 9-6"></path>
+              </svg>
+            </span>
+            <span class="nfh-contact-value">help@labacinema.online</span>
+          </div>
+          <span class="nfh-contact-arrow">→</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Report -->
+    <section class="nfh-section" id="report">
+      <h2 class="nfh-section-title">Report an issue</h2>
+      <p class="nfh-lede">Broken video, wrong info, or a bug? Tell us and we'll fix it fast.</p>
+
+      <form class="nfh-report" action="#" method="post">
+        <label class="nfh-field">
+          <span>Movie or page URL</span>
+          <input type="text" name="url" placeholder="/play/inception or a full URL">
+        </label>
+        <label class="nfh-field">
+          <span>What's wrong?</span>
+          <textarea name="issue" rows="4" placeholder="Describe the issue..."></textarea>
+        </label>
+        <button type="submit" class="nfh-submit">Submit report</button>
+      </form>
+    </section>
+  </main>
+
+  <%- include('../shared/footer', { brand: brand }) %>
+</body>
+</html>

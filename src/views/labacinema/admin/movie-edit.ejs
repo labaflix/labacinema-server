@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Edit: <%= movie.title %> - Admin</title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <%- include('../../shared/head-meta') %>
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <%- include('../shared/nav', { brand: brand, query: '', active: '' }) %>
+
+  <main class="nfa">
+    <header class="nfa-header">
+      <a href="/laba-panel-2026/movies" class="nfa-back">← Back to Movies</a>
+      <h1>Edit Movie</h1>
+      <p>Update details for "<%= movie.title %>"</p>
+    </header>
+
+    <% if (saved) { %>
+      <div class="nfa-alert nfa-alert-success">
+        Saved successfully. <a href="/play/<%= movie.slug %>" target="_blank">View movie →</a>
+      </div>
+    <% } %>
+
+    <div class="nfa-edit-layout">
+      <form method="post" action="/laba-panel-2026/movies/<%= movie.id %>/edit" class="nfa-edit-form">
+        <div class="nfa-field">
+          <label>Title *</label>
+          <input type="text" name="title" value="<%= movie.title %>" required maxlength="200">
+        </div>
+
+        <div class="nfa-field-row">
+          <div class="nfa-field">
+            <label>Year</label>
+            <input type="number" name="year" value="<%= movie.year || '' %>" min="1900" max="2100">
+          </div>
+          <div class="nfa-field">
+            <label>Genre</label>
+            <input type="text" name="genre" value="<%= movie.genre || '' %>" maxlength="60">
+          </div>
+          <div class="nfa-field">
+            <label>Kind</label>
+            <select name="kind">
+              <option value="movie" <%= movie.kind === 'movie' || !movie.kind ? 'selected' : '' %>>Movie</option>
+              <option value="series" <%= movie.kind === 'series' ? 'selected' : '' %>>Series</option>
+            </select>
+          </div>
+          <div class="nfa-field">
+            <label>VJ (translator)</label>
+            <input type="text" name="vj" value="<%= movie.vj || '' %>" placeholder="e.g. VJ Junior" maxlength="60">
+          </div>
+        </div>
+
+        <div class="nfa-field">
+          <label>Slug (URL)</label>
+          <input type="text" name="slug" value="<%= movie.slug %>" maxlength="200">
+        </div>
+
+        <div class="nfa-field">
+          <label>Description</label>
+          <textarea name="description" rows="6"><%= movie.description || '' %></textarea>
+        </div>
+
+        <div class="nfa-edit-actions">
+          <button type="submit" class="nfa-btn">Save Changes</button>
+          <a href="/laba-panel-2026/movies" class="nfa-btn-secondary">Cancel</a>
+        </div>
+      </form>
+
+      <aside class="nfa-edit-sidebar">
+        <% if (movie.poster_key) {
+             var poster = movie.poster_key.indexOf('http') === 0 ? movie.poster_key : (process.env.R2_PUBLIC_URL || '') + '/' + movie.poster_key; %>
+          <img class="nfa-edit-poster" src="<%= poster %>" alt="">
+        <% } else { %>
+          <div class="nfa-edit-poster nfa-poster-ph"><%= movie.title.charAt(0) %></div>
+        <% } %>
+        <div class="nfa-edit-meta">
+          <div><strong>ID:</strong> <%= movie.id %></div>
+          <div><strong>Views:</strong> <%= movie.is_free ? 'Free' : 'Paid' %></div>
+          <div><strong>Added:</strong> <%= movie.created_at %></div>
+        </div>
+
+        <hr style="border-color:rgba(255,255,255,0.08);margin:20px 0">
+
+        <form method="post" action="/laba-panel-2026/movies/<%= movie.id %>/delete" onsubmit="return confirm('Delete &quot;<%= movie.title %>&quot;? This cannot be undone.');">
+          <button type="submit" class="nfa-btn-danger">Delete Movie</button>
+        </form>
+      </aside>
+    </div>
+  </main>
+
+  <%- include('../shared/footer', { brand: brand }) %>
+<script>
+      (function () {
+        var movieId = <%= movie.id %>;
+        var listEl = document.getElementById('episodesList');
+        var addBtn = document.getElementById('addEpisodeBtn');
+        if (!listEl) return;
+
+        function loadEpisodes() {
+          fetch('/api/admin/episodes/' + movieId)
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+              var list = data.episodes || [];
+              if (!list.length) {
+                listEl.innerHTML = '<p style="color:var(--netflix-gray);font-size:13px;">No episodes yet.</p>';
+                return;
+              }
+              listEl.innerHTML = list.map(function (ep) {
+                return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06);">' +
+                       '<div><strong style="color:#fff;">S' + ep.season_number + ' E' + ep.episode_number + '</strong> — ' + (ep.title || 'Untitled') + '</div>' +
+                       '<button type="button" class="nfa-delete-btn ep-upload-btn" data-ep-id="' + ep.id + '" style="color:#39b9f0;">Upload</button>
+                       <button type="button" class="nfa-delete-btn" data-ep-id="' + ep.id + '">Delete</button>' +
+                       '</div>';
+              }).join('');
+              
+              listEl.querySelectorAll('[data-ep-id]').forEach(function (b) {
+                b.addEventListener('click', function () {
+                  if (!confirm('Delete this episode?')) return;
+                  fetch('/api/admin/episodes/' + b.getAttribute('data-ep-id') + '/delete', { method: 'POST' })
+                    .then(function () { loadEpisodes(); });
+                });
+              });
+            });
+        }
+
+        if (addBtn) {
+          addBtn.addEventListener('click', function () {
+            var s = prompt('Season number:', '1');
+            if (!s) return;
+            var e = prompt('Episode number:', '1');
+            if (!e) return;
+            var title = prompt('Episode title:', 'Episode ' + e);
+            if (!title) return;
+            var videoKey = prompt('Video key (R2 key from upload):');
+            if (!videoKey) return;
+            
+            fetch('/api/admin/episodes/' + movieId + '/add', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ season_number: parseInt(s, 10), episode_number: parseInt(e, 10), title: title, video_key: videoKey })
+            }).then(function () { loadEpisodes(); });
+          });
+        }
+
+        loadEpisodes();
+
+        // Episode upload handler
+        document.querySelectorAll('.ep-upload-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var epId = btn.getAttribute('data-ep-id');
+            var input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'video/*';
+            input.onchange = function () {
+              var file = input.files[0];
+              if (!file) return;
+
+              btn.textContent = 'Uploading...';
+              btn.disabled = true;
+
+              fetch('/api/upload/sign', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ kind: 'video', filename: file.name, contentType: file.type || 'video/mp4' })
+              })
+              .then(function (r) { return r.json(); })
+              .then(function (signed) {
+                return new Promise(function (resolve, reject) {
+                  var xhr = new XMLHttpRequest();
+                  xhr.open('PUT', signed.uploadUrl, true);
+                  xhr.setRequestHeader('Content-Type', file.type || 'video/mp4');
+                  xhr.onload = function () {
+                    if (xhr.status >= 200 && xhr.status < 300) resolve(signed.key);
+                    else reject(new Error('Upload failed'));
+                  };
+                  xhr.onerror = function () { reject(new Error('Network error')); };
+                  xhr.send(file);
+                });
+              })
+              .then(function (key) {
+                return fetch('/api/admin/episodes/' + epId + '/update-video', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ video_key: key })
+                });
+              })
+              .then(function () {
+                btn.textContent = '✅ Done';
+                setTimeout(function () { loadEpisodes(); }, 1000);
+              })
+              .catch(function (err) {
+                alert('Upload failed: ' + err.message);
+                btn.textContent = 'Upload';
+                btn.disabled = false;
+              });
+            };
+            input.click();
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Movie Requests - <%= brand.name %><%= brand.suffix %></title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <%- include('../shared/head-meta') %>
+</head>
+<body>
+  <%- include('../shared/nav', { brand: brand, query: '', active: 'requests' }) %>
+
+  <main class="nfh">
+    <section class="nfh-hero">
+      <h1 class="nfh-hero-title">Request a movie</h1>
+      <p style="color:var(--netflix-gray);font-size:15px;line-height:1.6;margin:0 auto;max-width:500px;">
+        Tell us what to add and we'll do our best to get it for you. Every request is reviewed.
+      </p>
+    </section>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+      <div class="nfr-alert nfr-alert-success" style="margin-bottom:28px;">
+        <strong>Request submitted.</strong>
+        We'll try to add "<%= success.title %>" soon.
+      </div>
+    <% } %>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+      <div class="nfr-alert nfr-alert-error" style="margin-bottom:28px;">
+        <%= error %>
+      </div>
+    <% } %>
+
+    <section class="nfh-section">
+      <h2 class="nfh-section-title">New request</h2>
+
+      <form method="post" action="/requests" class="nfh-report">
+        <label class="nfh-field">
+          <span>Movie title *</span>
+          <input type="text" name="title" required maxlength="200" placeholder="e.g. The Dark Knight" autofocus>
+        </label>
+
+        <label class="nfh-field">
+          <span>Year (optional)</span>
+          <input type="number" name="year" min="1900" max="2100" placeholder="2008">
+        </label>
+
+        <label class="nfh-field">
+          <span>Your name (optional)</span>
+          <input type="text" name="requester_name" maxlength="100" placeholder="Peter">
+        </label>
+
+        <label class="nfh-field">
+          <span>Contact (WhatsApp / email / Telegram)</span>
+          <input type="text" name="requester_contact" maxlength="120" placeholder="0702430965 or @yourname">
+        </label>
+
+        <label class="nfh-field">
+          <span>Notes (optional)</span>
+          <textarea name="notes" rows="3" placeholder="Quality, language, specific version..."></textarea>
+        </label>
+
+        <button type="submit" class="nfh-submit">Submit request</button>
+      </form>
+    </section>
+
+    <section class="nfh-section">
+      <h2 class="nfh-section-title">Recent requests</h2>
+
+      <% if (!recentRequests.length) { %>
+        <p style="color:var(--netflix-gray);font-size:14px;margin:0;">No requests yet. Be the first.</p>
+      <% } else { %>
+        <div class="nfh-contact-list">
+          <% recentRequests.forEach(function (r) { %>
+            <div class="nfh-contact-row" style="cursor:default;">
+              <div>
+                <span class="nfh-contact-label"><%= r.status %></span>
+                <span class="nfh-contact-value">
+                  <%= r.title %><% if (r.year) { %> <span style="color:var(--netflix-gray);font-weight:400;">(<%= r.year %>)</span><% } %>
+                </span>
+                <% if (r.notes) { %>
+                  <div style="color:var(--netflix-gray);font-size:12px;margin-top:6px;max-width:520px;line-height:1.5;"><%= r.notes %></div>
+                <% } %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+
+  <%- include('../shared/footer', { brand: brand }) %>
+</body>
+</html>

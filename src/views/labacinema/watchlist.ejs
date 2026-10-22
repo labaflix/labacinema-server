@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>My List - <%= brand.name %><%= brand.suffix %></title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <%- include('../shared/head-meta') %>
+</head>
+<body>
+  <%- include('../shared/nav', { brand: brand, query: '', active: 'watchlist' }) %>
+
+  <main class="nf-mylist">
+    <header class="nf-mylist-header">
+      <h1>My List</h1>
+      <p><%= items.length %> title<%= items.length === 1 ? '' : 's' %></p>
+    </header>
+
+    <% if (!items.length) { %>
+      <div class="nf-mylist-empty">
+        <h2>Your list is empty</h2>
+        <p>Add movies and shows to your list so you can easily find them later.</p>
+        <a href="/" class="nf-mylist-btn">Find something to watch</a>
+      </div>
+    <% } else { %>
+      <div class="nf-mylist-grid">
+        <% items.forEach(function (m) {
+             var poster = m.poster_key
+               ? (m.poster_key.indexOf('http') === 0 ? m.poster_key : (process.env.R2_PUBLIC_URL || '') + '/' + m.poster_key)
+               : null; %>
+          <div class="nf-tile" data-movie-id="<%= m.id %>">
+            <a href="/play/<%= m.slug %>" class="nf-tile-link">
+              <% if (poster) { %>
+                <img class="nf-tile-poster" src="<%= poster %>" alt="<%= m.title %>" loading="lazy">
+              <% } else { %>
+                <div class="nf-tile-poster nf-tile-ph"><%= m.title.charAt(0) %></div>
+              <% } %>
+            </a>
+
+            <div class="nf-tile-overlay">
+              <div class="nf-tile-title"><%= m.title %></div>
+              <div class="nf-tile-meta">
+                <span class="match">98% Match</span>
+                <% if (m.year) { %><span><%= m.year %></span><% } %>
+                <% if (m.genre) { %><span class="nf-tile-tag"><%= m.genre %></span><% } %>
+                <span class="nf-tile-tag nf-tile-hd">HD</span>
+              </div>
+              <div class="nf-tile-actions">
+                <a href="/play/<%= m.slug %>" class="nf-tile-play" aria-label="Play">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </a>
+                <button class="nf-tile-remove" data-movie-id="<%= m.id %>" aria-label="Remove from list">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                </button>
+                <a href="/play/<%= m.slug %>" class="nf-tile-info" aria-label="More info">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="10" x2="12" y2="16"/><circle cx="12" cy="7.5" r=".7" fill="currentColor"/></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+
+  <%- include('../shared/footer', { brand: brand }) %>
+
+  <script>
+    (function () {
+      function post(url, body) {
+        return fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body || {})
+        }).then(function (r) { return r.json(); });
+      }
+
+      document.querySelectorAll('.nf-tile-remove').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var id = btn.getAttribute('data-movie-id');
+          post('/api/watchlist/remove', { movie_id: parseInt(id, 10) }).then(function (res) {
+            if (res.ok) {
+              var tile = document.querySelector('.nf-tile[data-movie-id="' + id + '"]');
+              if (tile) {
+                tile.style.transition = 'opacity .25s, transform .25s';
+                tile.style.opacity = '0';
+                tile.style.transform = 'scale(.92)';
+                setTimeout(function () {
+                  tile.remove();
+                  if (!document.querySelector('.nf-tile')) location.reload();
+                }, 260);
+              }
+            }
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

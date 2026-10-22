@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin - <%= brand.name %><%= brand.suffix %></title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <%- include('../../shared/head-meta') %>
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <%- include('../shared/nav', { brand: brand, query: '', active: '' }) %>
+
+  <main class="nfa">
+    <header class="nfa-header">
+      <h1>Admin Dashboard</h1>
+      <p>Manage <%= brand.name %><%= brand.suffix %></p>
+    </header>
+
+    <section class="nfa-stats">
+      <div class="nfa-stat">
+        <div class="nfa-stat-value"><%= movieCount %></div>
+        <div class="nfa-stat-label">Movies</div>
+      </div>
+      <div class="nfa-stat">
+        <div class="nfa-stat-value"><%= seriesCount %></div>
+        <div class="nfa-stat-label">Series</div>
+      </div>
+      <div class="nfa-stat">
+        <div class="nfa-stat-value"><%= recentRequests.length %></div>
+        <div class="nfa-stat-label">Recent Requests</div>
+      </div>
+    </section>
+
+    <section class="nfa-actions">
+      <h2>Quick Actions</h2>
+      <div class="nfa-action-grid">
+        <a href="/upload" class="nfa-action">
+          <span class="nfa-action-icon">⬆</span>
+          <span class="nfa-action-text">Upload Movie</span>
+        </a>
+        <a href="/laba-panel-2026/movies" class="nfa-action">
+          <span class="nfa-action-icon">🎬</span>
+          <span class="nfa-action-text">Manage Movies</span>
+        </a>
+        <a href="/laba-panel-2026/requests" class="nfa-action">
+          <span class="nfa-action-icon">📝</span>
+          <span class="nfa-action-text">View Requests</span>
+        </a>
+        <a href="/" class="nfa-action">
+          <span class="nfa-action-icon">👁</span>
+          <span class="nfa-action-text">View Site</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="nfa-section">
+      <div class="nfa-section-head">
+        <h2>Recent Movies</h2>
+        <a href="/laba-panel-2026/movies" class="nfa-link">View all →</a>
+      </div>
+      <% if (!recentMovies.length) { %>
+        <p class="nfa-empty">No movies yet. <a href="/upload">Upload one</a>.</p>
+      <% } else { %>
+        <div class="nfa-table">
+          <div class="nfa-row nfa-row-head">
+            <div>Title</div>
+            <div>Year</div>
+            <div>Genre</div>
+            <div>Kind</div>
+            <div>Actions</div>
+          </div>
+          <% recentMovies.forEach(function (m) { %>
+            <div class="nfa-row">
+              <div class="nfa-row-title"><%= m.title %></div>
+              <div><%= m.year || '—' %></div>
+              <div><%= m.genre || '—' %></div>
+              <div><span class="nfa-badge nfa-badge-<%= m.kind || 'movie' %>"><%= m.kind || 'movie' %></span></div>
+              <div class="nfa-row-actions">
+                <a href="/play/<%= m.slug %>" target="_blank">View</a>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+
+    <section class="nfa-section">
+      <div class="nfa-section-head">
+        <h2>Recent Requests</h2>
+        <a href="/laba-panel-2026/requests" class="nfa-link">View all →</a>
+      </div>
+      <% if (!recentRequests.length) { %>
+        <p class="nfa-empty">No requests yet.</p>
+      <% } else { %>
+        <div class="nfa-table">
+          <div class="nfa-row nfa-row-head">
+            <div>Title</div>
+            <div>Year</div>
+            <div>Status</div>
+            <div>Requested</div>
+          </div>
+          <% recentRequests.forEach(function (r) { %>
+            <div class="nfa-row">
+              <div class="nfa-row-title"><%= r.title %></div>
+              <div><%= r.year || '—' %></div>
+              <div><span class="nfa-badge nfa-badge-<%= r.status %>"><%= r.status %></span></div>
+              <div class="nfa-row-meta"><%= r.created_at %></div>
+            </div>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+
+  <%- include('../shared/footer', { brand: brand }) %>
+</body>
+</html>

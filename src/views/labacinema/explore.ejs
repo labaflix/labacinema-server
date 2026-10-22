@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Explore - <%= brand.name %><%= brand.suffix %></title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <%- include('../shared/head-meta') %>
+</head>
+<body>
+  <%- include('../shared/nav', { brand: brand, query: '', active: 'explore' }) %>
+
+  <%
+    function posterUrl(key) {
+      if (!key) return '';
+      if (key.indexOf('http') === 0) return key;
+      return (process.env.R2_PUBLIC_URL || '') + '/' + key;
+    }
+  %>
+
+  <% if (movieCount === 0 && seriesCount === 0) { %>
+    <div class="nf-mylist-empty" style="min-height:60vh">
+      <h2>Nothing to explore yet</h2>
+      <p>Movies and shows will appear here as they're added.</p>
+      <a href="/" class="nf-mylist-btn">Back to Home</a>
+    </div>
+  <% } else { %>
+
+    <main class="nf-explore-page">
+      <header class="nf-explore-header">
+        <h1>Explore</h1>
+        <p>Discover movies, shows and hidden gems</p>
+      </header>
+
+      <% if (trending.length) { %>
+        <section class="nf-row-section">
+          <h2 class="nf-row-title">Trending Now</h2>
+          <div class="nf-grid-six">
+            <% trending.forEach(function (m) {
+                 var poster = posterUrl(m.poster_key); %>
+              <div class="card-wrap">
+                <button class="nf-heart-btn" data-movie-id="<%= m.id %>" aria-label="Add to list">♡</button>
+                <a class="card" href="/play/<%= m.slug %>">
+                  <% if (poster) { %>
+                    <div class="card-poster-wrap">
+                      <img class="card-poster" src="<%= poster %>" alt="<%= m.title %>" loading="lazy">
+                      <% if (m.vj) { %><span class="card-vj-badge"><%= m.vj %></span><% } %>
+                    </div>
+                  <% } else { %>
+                    <div class="card-poster-ph"><%= m.title.charAt(0) %></div>
+                  <% } %>
+                  <div class="card-info-visible">
+                    <div class="card-title"><%= m.title %></div>
+                    <div class="card-meta">
+                      <span><%= m.year || '' %></span>
+                      <% if (m.genre) { %><span class="card-genre">· <%= m.genre %></span><% } %>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+
+      <% if (top10.length) { %>
+        <section class="nf-row-section">
+          <h2 class="nf-row-title">Top 10 on <%= brand.name %><%= brand.suffix %></h2>
+          <div class="nf-top10">
+            <% top10.forEach(function (m, i) {
+                 var poster = posterUrl(m.poster_key); %>
+              <div class="nf-top10-card" data-rank="<%= i + 1 %>">
+                <span class="nf-top10-rank"><%= i + 1 %></span>
+                <a class="nf-top10-link" href="/play/<%= m.slug %>">
+                  <% if (poster) { %>
+                    <img class="nf-top10-poster" src="<%= poster %>" alt="<%= m.title %>" loading="lazy">
+                  <% } else { %>
+                    <div class="nf-top10-poster nf-top10-ph"><%= m.title.charAt(0) %></div>
+                  <% } %>
+                </a>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+
+      <% if (newReleases.length) { %>
+        <section class="nf-row-section">
+          <h2 class="nf-row-title">New Releases</h2>
+          <div class="nf-grid-six">
+            <% newReleases.forEach(function (m) {
+                 var poster = posterUrl(m.poster_key); %>
+              <div class="card-wrap">
+                <button class="nf-heart-btn" data-movie-id="<%= m.id %>" aria-label="Add to list">♡</button>
+                <a class="card" href="/play/<%= m.slug %>">
+                  <% if (poster) { %>
+                    <div class="card-poster-wrap">
+                      <img class="card-poster" src="<%= poster %>" alt="<%= m.title %>" loading="lazy">
+                      <% if (m.vj) { %><span class="card-vj-badge"><%= m.vj %></span><% } %>
+                    </div>
+                  <% } else { %>
+                    <div class="card-poster-ph"><%= m.title.charAt(0) %></div>
+                  <% } %>
+                  <div class="card-info-visible">
+                    <div class="card-title"><%= m.title %></div>
+                    <div class="card-meta">
+                      <span><%= m.year || '' %></span>
+                      <% if (m.genre) { %><span class="card-genre">· <%= m.genre %></span><% } %>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+      <% } %>
+
+      <% genreRows.forEach(function (row) { %>
+        <section class="nf-row-section">
+          <h2 class="nf-row-title"><%= row.title %></h2>
+          <div class="nf-grid-six">
+            <% row.movies.forEach(function (m) {
+                 var poster = posterUrl(m.poster_key); %>
+              <div class="card-wrap">
+                <button class="nf-heart-btn" data-movie-id="<%= m.id %>" aria-label="Add to list">♡</button>
+                <a class="card" href="/play/<%= m.slug %>">
+                  <% if (poster) { %>
+                    <div class="card-poster-wrap">
+                      <img class="card-poster" src="<%= poster %>" alt="<%= m.title %>" loading="lazy">
+                      <% if (m.vj) { %><span class="card-vj-badge"><%= m.vj %></span><% } %>
+                    </div>
+                  <% } else { %>
+                    <div class="card-poster-ph"><%= m.title.charAt(0) %></div>
+                  <% } %>
+                  <div class="card-info-visible">
+                    <div class="card-title"><%= m.title %></div>
+                    <div class="card-meta">
+                      <span><%= m.year || '' %></span>
+                      <% if (m.genre) { %><span class="card-genre">· <%= m.genre %></span><% } %>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+      <% }) %>
+
+      
+    </main>
+  <% } %>
+
+  <%- include('../shared/footer', { brand: brand }) %>
+  <script src="/js/watchlist-toggle.js"></script>
+</body>
+</html>

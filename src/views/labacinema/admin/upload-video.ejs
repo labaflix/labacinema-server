@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Upload Video - <%= movie.title %></title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <link rel="stylesheet" href="/css/admin.css">
+  <%- include('../../shared/head-meta') %>
+</head>
+<body>
+  <%- include('../../shared/nav', { brand: brand, query: '', active: '' }) %>
+
+  <main class="nfa">
+    <header class="nfa-header">
+      <a href="/laba-panel-2026/movies" class="nfa-back">← Back to Movies</a>
+      <h1>Upload Video</h1>
+      <p>Replace the video for "<%= movie.title %>"</p>
+    </header>
+
+    <% if (saved) { %>
+      <div class="nfa-alert nfa-alert-success">
+        Video uploaded. <a href="/play/<%= movie.slug %>" target="_blank">Watch it now →</a>
+      </div>
+    <% } %>
+
+    <div class="nfa-edit-layout">
+      <div class="nfa-edit-form">
+        <h3 style="color:#fff;margin-top:0;">Current Video</h3>
+        <p style="color:var(--netflix-gray);font-size:13px;word-break:break-all;">
+          <strong>key:</strong> <%= movie.video_key %>
+        </p>
+
+        <h3 style="color:#fff;margin-top:24px;">Upload New Video</h3>
+        <div class="nf-dropzone" id="videoDrop" style="cursor:pointer;padding:32px 20px;">
+          <input type="file" id="videoInput" accept="video/mp4,video/*" hidden>
+          <div class="nf-dropzone-inner">
+            <div class="nf-dropzone-icon">🎞</div>
+            <div class="nf-dropzone-text">
+              <strong>Drag &amp; drop</strong> MP4 here<br>
+              or <span class="nf-dropzone-link">click to browse</span>
+            </div>
+          </div>
+          <div class="nf-upload-progress" id="videoProgress" hidden>
+            <div class="nf-progress-bar"><div class="nf-progress-fill" id="videoFill"></div></div>
+            <div class="nf-progress-label" id="videoStatus">0%</div>
+          </div>
+        </div>
+
+        <div class="nf-upload-meta" id="videoMeta" hidden style="margin-top:16px;">
+          <span class="nf-upload-done">✅ Uploaded to R2</span>
+          <span class="nf-upload-key" id="videoKey" style="font-family:monospace;font-size:12px;color:var(--netflix-gray);display:block;margin-top:8px;word-break:break-all;"></span>
+        </div>
+      </div>
+
+      <aside class="nfa-edit-sidebar">
+        <% if (movie.poster_key) { %>
+          <img class="nfa-edit-poster" src="<%= movie.poster_key %>" alt="">
+        <% } %>
+        <div class="nfa-edit-meta">
+          <div><strong>Title:</strong> <%= movie.title %></div>
+          <div><strong>Year:</strong> <%= movie.year || '—' %></div>
+          <div><strong>Genre:</strong> <%= movie.genre || '—' %></div>
+          <div><strong>VJ:</strong> <%= movie.vj || '—' %></div>
+          <div><strong>Kind:</strong> <%= movie.kind %></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <%- include('../../shared/footer', { brand: brand }) %>
+
+  <script>
+    (function () {
+      var movieId = <%= movie.id %>;
+      var drop = document.getElementById('videoDrop');
+      var input = document.getElementById('videoInput');
+      var progress = document.getElementById('videoProgress');
+      var fill = document.getElementById('videoFill');
+      var status = document.getElementById('videoStatus');
+      var meta = document.getElementById('videoMeta');
+      var keyEl = document.getElementById('videoKey');
+
+      drop.addEventListener('click', function () { input.click(); });
+      input.addEventListener('change', function () { if (input.files[0]) upload(input.files[0]); });
+
+      ['dragenter', 'dragover'].forEach(function (ev) {
+        drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('dragging'); });
+      });
+      ['dragleave', 'drop'].forEach(function (ev) {
+        drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove('dragging'); });
+      });
+      drop.addEventListener('drop', function (e) {
+        if (e.dataTransfer.files[0]) upload(e.dataTransfer.files[0]);
+      });
+
+      function upload(file) {
+        progress.hidden = false;
+        meta.hidden = true;
+        fill.style.width = '0%';
+        status.textContent = 'Uploading...';
+        status.classList.remove('error');
+
+        var contentType = file.type || 'video/mp4';
+
+        fetch('/api/upload/sign', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ kind: 'video', filename: file.name, contentType: contentType })
+        })
+        .then(function (r) { return r.json(); })
+        .then(function (signed) {
+          return new Promise(function (resolve, reject) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('PUT', signed.uploadUrl, true);
+            xhr.setRequestHeader('Content-Type', contentType);
+            xhr.upload.onprogress = function (e) {
+              if (e.lengthComputable) {
+                var pct = Math.round((e.loaded / e.total) * 100);
+                fill.style.width = pct + '%';
+                status.textContent = pct + '%';
+              }
+            };
+            xhr.onload = function () {
+              if (xhr.status >= 200 && xhr.status < 300) resolve(signed.key);
+              else reject(new Error('Upload failed: ' + xhr.status));
+            };
+            xhr.onerror = function () { reject(new Error('Network error')); };
+            xhr.send(file);
+          });
+        })
+        .then(function (key) {
+          // Now update the movie's video_key
+          return fetch('/api/laba-panel-2026/movies/' + movieId + '/update-video', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ video_key: key })
+          }).then(function (r) { return r.json(); }).then(function (res) {
+            if (res.error) throw new Error(res.error);
+            return key;
+          });
+        })
+        .then(function (key) {
+          meta.hidden = false;
+          keyEl.textContent = 'key: ' + key;
+          status.textContent = '100% — saved';
+          setTimeout(function () { window.location.href = '/laba-panel-2026/movies/' + movieId + '/upload-video?saved=1'; }, 1000);
+        })
+        .catch(function (err) {
+          status.textContent = 'Error: ' + err.message;
+          status.classList.add('error');
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

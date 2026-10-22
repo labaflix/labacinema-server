@@ -1,0 +1,218 @@
+<nav class="nav" id="topnav">
+  <a href="/" class="nav-logo">
+    <span class="lab">LABA</span><span class="suffix"><%= brand.suffix %></span>
+  </a>
+  <div class="nav-links">
+    <a href="/" class="<%= typeof active !== 'undefined' && active === 'home' ? 'active' : '' %>">Home</a>
+    <a href="/explore" class="<%= typeof active !== 'undefined' && active === 'explore' ? 'active' : '' %>">Explore</a>
+    <a href="/movies" class="<%= typeof active !== 'undefined' && active === 'movies' ? 'active' : '' %>">Movies</a>
+    <a href="/series" class="<%= typeof active !== 'undefined' && active === 'series' ? 'active' : '' %>">Series</a>
+    <a href="/categories" class="<%= typeof active !== 'undefined' && active === 'categories' ? 'active' : '' %>">Categories &amp; VJs</a>
+    <a href="/watchlist" class="<%= typeof active !== 'undefined' && active === 'watchlist' ? 'active' : '' %>">Watchlist</a>
+    <a href="/history" class="<%= typeof active !== 'undefined' && active === 'history' ? 'active' : '' %>">Watch History</a>
+    <a href="/requests" class="<%= typeof active !== 'undefined' && active === 'requests' ? 'active' : '' %>">Movie Requests</a>
+    <a href="/help" class="<%= typeof active !== 'undefined' && active === 'help' ? 'active' : '' %>">Help</a>
+    <a href="/laba-panel-2026" class="nf-admin-link" data-admin-check style="display:none;">Admin</a>
+  </div>
+
+  <div class="nav-right">
+    <form class="nav-search" action="/search" method="get" id="navSearch">
+      <button type="button" class="nav-search-toggle" id="navSearchToggle" aria-label="Search">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+      <input name="q" id="navSearchInput" placeholder="Search movies..." value="<%= typeof query !== 'undefined' ? query : '' %>" autocomplete="off">
+    </form>
+
+    <div class="nav-notifications">
+      <button class="notif-btn" aria-label="Notifications" id="notifBtn" type="button">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+        </svg>
+        <span class="notif-dot"></span>
+      </button>
+      <div class="notif-panel" id="notifPanel" hidden>
+        <div class="notif-header">
+          <h3>Notifications</h3>
+          <button class="notif-mark-all" type="button">Mark all read</button>
+        </div>
+        <ul class="notif-list" id="notifList">
+          <li class="notif-item"><div class="notif-body"><p class="notif-title">Loading...</p></div></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<nav class="nf-bottom-nav" id="bottomNav">
+  <a href="/" class="nf-bottom-nav-item <%= typeof active !== 'undefined' && active === 'home' ? 'active' : '' %>" data-nav="home">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2h-3v-7H8v7H5a2 2 0 0 1-2-2V10z"></path>
+    </svg>
+    <span>Home</span>
+  </a>
+  <a href="/movies" class="nf-bottom-nav-item <%= typeof active !== 'undefined' && active === 'movies' ? 'active' : '' %>" data-nav="movies">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+      <line x1="7" y1="3" x2="7" y2="21"></line>
+      <line x1="17" y1="3" x2="17" y2="21"></line>
+      <line x1="3" y1="8" x2="7" y2="8"></line>
+      <line x1="3" y1="16" x2="7" y2="16"></line>
+      <line x1="17" y1="8" x2="21" y2="8"></line>
+      <line x1="17" y1="16" x2="21" y2="16"></line>
+    </svg>
+    <span>Movies</span>
+  </a>
+  <a href="/series" class="nf-bottom-nav-item <%= typeof active !== 'undefined' && active === 'series' ? 'active' : '' %>" data-nav="series">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="6" width="20" height="14" rx="2"></rect>
+      <line x1="8" y1="2" x2="8" y2="6"></line>
+      <line x1="16" y1="2" x2="16" y2="6"></line>
+    </svg>
+    <span>Series</span>
+  </a>
+  <a href="/categories" class="nf-bottom-nav-item <%= typeof active !== 'undefined' && active === 'categories' ? 'active' : '' %>" data-nav="categories">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+      <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+      <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+      <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+    </svg>
+    <span>Categories</span>
+  </a>
+</nav>
+<script>
+  (function() {
+    var nav = document.getElementById('topnav');
+    if (!nav) return;
+    function onScroll() {
+      if (window.scrollY > 20) nav.classList.add('scrolled');
+      else nav.classList.remove('scrolled');
+    }
+    window.addEventListener('scroll', onScroll);
+    onScroll();
+
+    // Search expand
+    var form = document.getElementById('navSearch');
+    var toggle = document.getElementById('navSearchToggle');
+    var input = document.getElementById('navSearchInput');
+    if (toggle && input && form) {
+      toggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        form.classList.toggle('open');
+        if (form.classList.contains('open')) {
+          input.focus();
+        } else if (!input.value) {
+          form.classList.remove('open');
+        }
+      });
+      input.addEventListener('blur', function() {
+        setTimeout(function() {
+          if (!input.value) form.classList.remove('open');
+        }, 200);
+      });
+      input.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { form.classList.remove('open'); input.blur(); }
+      });
+      document.addEventListener('click', function(e) {
+        if (!form.contains(e.target)) form.classList.remove('open');
+      });
+    }
+
+    // Notifications
+    var btn = document.getElementById('notifBtn');
+    var panel = document.getElementById('notifPanel');
+    var notifList = document.getElementById('notifList');
+    var notifDot = btn ? btn.querySelector('.notif-dot') : null;
+
+    if (btn && panel && notifList) {
+      var loadNotifications = function () {
+        fetch('/api/notifications')
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            var list = data.notifications || [];
+            if (!list.length) {
+              notifList.innerHTML = '<li class="notif-item"><div class="notif-body"><p class="notif-title">No notifications yet</p></div></li>';
+              if (notifDot) notifDot.style.display = 'none';
+              return;
+            }
+            notifList.innerHTML = list.map(function (n) {
+              var unread = n.is_read ? '' : ' unread';
+              var body = n.body ? '<p class="notif-meta">' + n.body + ' · ' + n.time + '</p>' : '<p class="notif-meta">' + n.time + '</p>';
+              var linkAttr = n.link ? ' data-link="' + n.link + '"' : '';
+              return '<li class="notif-item' + unread + '" data-id="' + n.id + '"' + linkAttr + '>' +
+                     '<div class="notif-body"><p class="notif-title">' + n.title + '</p>' + body + '</div></li>';
+            }).join('');
+
+            if (notifDot) notifDot.style.display = (data.unread > 0) ? '' : 'none';
+
+            // Bind click on each item
+            notifList.querySelectorAll('.notif-item').forEach(function (item) {
+              item.addEventListener('click', function (e) {
+                e.stopPropagation();
+                var id = item.getAttribute('data-id');
+                var link = item.getAttribute('data-link');
+                if (id) {
+                  fetch('/api/notifications/read', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: parseInt(id, 10) })
+                  }).catch(function () {});
+                }
+                item.classList.remove('unread');
+                if (!notifList.querySelector('.notif-item.unread') && notifDot) {
+                  notifDot.style.display = 'none';
+                }
+                if (link) setTimeout(function () { window.location.href = link; }, 150);
+              });
+            });
+          })
+          .catch(function (err) {
+            notifList.innerHTML = '<li class="notif-item"><div class="notif-body"><p class="notif-title">Failed to load</p></div></li>';
+          });
+      };
+
+      // Load on page start
+      loadNotifications();
+
+      // Toggle panel on bell click
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        panel.hidden = !panel.hidden;
+        if (!panel.hidden) loadNotifications();
+      });
+
+      // Close on outside click
+      document.addEventListener('click', function (e) {
+        if (!panel.hidden && !panel.contains(e.target) && !btn.contains(e.target)) {
+          panel.hidden = true;
+        }
+      });
+
+      // Close on Escape
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') panel.hidden = true;
+      });
+
+      // Mark all read
+      var markAll = panel.querySelector('.notif-mark-all');
+      if (markAll) {
+        markAll.addEventListener('click', function (e) {
+          e.stopPropagation();
+          fetch('/api/notifications/read-all', { method: 'POST' })
+            .then(function () {
+              notifList.querySelectorAll('.notif-item.unread').forEach(function (el) {
+                el.classList.remove('unread');
+              });
+              if (notifDot) notifDot.style.display = 'none';
+            })
+            .catch(function () {});
+        });
+      }
+    }
+
+  })();
+</script>

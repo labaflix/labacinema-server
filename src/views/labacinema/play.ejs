@@ -1,0 +1,462 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= movie.title %> - <%= brand.name %><%= brand.suffix %></title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <%- include('../shared/head-meta') %>
+</head>
+<body class="nf-play-body">
+  <%- include('../shared/nav', { brand: brand, query: '', active: '' }) %>
+
+  <%
+    var posterSrc = movie.poster_key
+      ? (movie.poster_key.indexOf('http') === 0 ? movie.poster_key : (process.env.R2_PUBLIC_URL || '') + '/' + movie.poster_key)
+      : null;
+    var videoSrc = movie.video_key
+      ? (movie.video_key.indexOf('http') === 0 ? movie.video_key : (process.env.R2_PUBLIC_URL || '') + '/' + movie.video_key)
+      : '';
+    var ageRating = 'PG 13';
+  %>
+
+  <main class="nf-play">
+    <% if (resumeSeconds && resumeSeconds > 5) { %>
+      <div class="nf-resume-banner" id="resumeBanner">
+        <div class="nf-resume-text">⏯ Resume from <strong id="resumeTimeLabel"></strong>?</div>
+        <div class="nf-resume-actions">
+          <button class="nf-resume-btn nf-resume-yes" id="resumeYes">Resume</button>
+          <button class="nf-resume-btn nf-resume-no" id="resumeNo">Start over</button>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="nf-play-layout">
+      <div class="nf-play-left">
+        <div class="nf-player">
+      <video id="movieVideo" controls playsinline preload="metadata" <% if (posterSrc) { %>poster="<%= posterSrc %>"<% } %>>
+        <source src="<%= videoSrc %>" type="video/mp4">
+        Your browser doesn't support video playback.
+      </video>
+        <div class="nf-video-end" id="videoEndOverlay" hidden>
+          <div class="nf-video-end-inner">
+            <h2>Movie ended</h2>
+            <p class="nf-video-end-title"><%= movie.title %></p>
+            <div class="nf-video-end-actions">
+              <button class="nf-play-btn" id="replayBtn">↻ Replay</button>
+              <a href="/movies" class="nf-play-btn nf-play-btn-secondary">Browse Movies</a>
+            </div>
+          </div>
+        </div>
+        <% if (isSeries && nextEpisode) { %>
+          <div class="nf-upnext-overlay" id="upNextOverlay" hidden>
+            <div class="nf-upnext-inner">
+              <div class="nf-upnext-label">Up next in <span id="upNextCount">5</span>s</div>
+              <div class="nf-upnext-title">
+                <span class="nf-upnext-season">S<%= nextEpisode.season_number %> E<%= nextEpisode.episode_number %></span>
+                <%= nextEpisode.title || ('Episode ' + nextEpisode.episode_number) %>
+              </div>
+              <div class="nf-upnext-actions">
+                <a href="/play/<%= movie.slug %>?s=<%= nextEpisode.season_number %>&e=<%= nextEpisode.episode_number %>"
+                   class="nf-play-btn" id="upNextPlay">Play Now</a>
+                <button type="button" class="nf-play-btn nf-play-btn-secondary" id="upNextCancel">Cancel</button>
+              </div>
+            </div>
+          </div>
+        <% } %>
+    </div>
+      </div>
+
+      <div class="nf-play-right">
+        <div class="nf-play-info">
+      <a href="/movies" class="nf-back-link">&larr; Back to Movies</a>
+      <h1 class="nf-play-title"><%= movie.title %></h1>
+      <% if (isSeries && currentEpisode) { %>
+        <div class="nf-play-episode-indicator">Now Playing: <strong>S<%= currentSeason %> Episode <%= currentEpisodeNum %></strong></div>
+      <% } %>
+
+      <div class="nf-play-meta">
+        <% if (isSeries) { %><span class="nf-play-series-tag">Series</span><% } %>
+        <span class="nf-match">98% Match</span>
+        <% if (movie.year) { %><span><%= movie.year %></span><% } %>
+        <% if (movie.genre) { %><span class="nf-play-tag"><%= movie.genre %></span><% } %>
+        <span class="nf-play-hd"><%= ageRating %></span>
+        <span class="nf-play-hd">HD</span>
+        <% if (movie.vj) { %><span class="nf-play-vj"><%= movie.vj %></span><% } %>
+      </div>
+
+      <% if (movie.description) { %>
+        <p class="nf-play-desc"><%= movie.description %></p>
+      <% } %>
+
+      <div class="nf-play-actions">
+        <button class="nf-play-btn" id="playBtn">Play</button>
+        <button class="nf-play-btn nf-play-btn-secondary nf-heart-play" data-movie-id="<%= movie.id %>">Save</button>
+        <a href="/download/<%= movie.slug %>" class="nf-play-btn nf-play-btn-secondary" id="downloadBtn">Download</a>
+      </div>
+    </div>
+      </div>
+    </div>
+
+    <% if (isSeries && Object.keys(seasons).length) { %>
+      <section class="nf-episodes">
+        <div class="nf-episodes-header">
+          <h2>Episodes</h2>
+          <button class="nf-episodes-toggle" id="episodesToggle" type="button">Hide</button>
+        </div>
+        <div id="episodesContainer">
+          <% Object.keys(seasons).sort(function(a,b){ return a-b; }).forEach(function (seasonNum) { %>
+            <div class="nf-season-block">
+              <div class="nf-season-header">
+                <h3>Season <%= seasonNum %></h3>
+                <span class="nf-season-meta"><%= seasons[seasonNum].length %> episodes</span>
+              </div>
+              <div class="nf-episode-list">
+                <% seasons[seasonNum].forEach(function (ep) { %>
+                  <a class="nf-episode-card <%= (currentEpisode && currentEpisode.id === ep.id) ? 'active' : '' %>"
+                     href="/play/<%= movie.slug %>?s=<%= ep.season_number %>&e=<%= ep.episode_number %>">
+                    <div class="nf-episode-thumb">S<%= ep.season_number %> E<%= ep.episode_number %></div>
+                    <div class="nf-episode-body">
+                      <div class="nf-episode-title"><%= ep.title || ('Episode ' + ep.episode_number) %></div>
+                      <div class="nf-episode-meta">
+                        <% if (ep.file_size) { %><%= formatBytes(ep.file_size) %><% } %>
+                      </div>
+                    </div>
+                    <div class="nf-episode-play">▶</div>
+                  </a>
+                <% }) %>
+              </div>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+    <% } %>
+
+
+
+
+    <section class="nf-rating">
+      <div class="nf-rating-score">
+        <div class="nf-rating-big" id="ratingBig"><%= ratingStats.avg.toFixed(1) %></div>
+        <div class="nf-rating-info">
+          <div class="nf-rating-count" id="ratingCount"><%= ratingStats.count %> rating<%= ratingStats.count === 1 ? '' : 's' %></div>
+          <div class="nf-rating-stars" data-movie-id="<%= movie.id %>" data-user-rating="<%= userRating || 0 %>">
+            <% for (var i = 1; i <= 5; i++) { %>
+              <button class="nf-star <%= (userRating && i <= userRating) ? 'filled' : '' %>" data-score="<%= i %>" type="button">★</button>
+            <% } %>
+          </div>
+        </div>
+      </div>
+      <p class="nf-rating-hint">Rate this movie</p>
+    </section>
+
+    <section class="nf-community">
+      <h2>Join our community for updates</h2>
+      <div class="nf-community-grid">
+        <a href="https://t.me/labacinema" target="_blank" rel="noopener" class="nf-community-card" data-brand="telegram">
+          <span class="nf-community-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+          </span>
+          <div class="nf-community-body">
+            <div class="nf-community-title">Telegram Channel</div>
+            <div class="nf-community-meta">Get the latest releases</div>
+          </div>
+          <span class="nf-community-arrow">→</span>
+        </a>
+        <a href="https://t.me/labacinema" target="_blank" rel="noopener" class="nf-community-card" data-brand="telegram">
+          <span class="nf-community-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+          </span>
+          <div class="nf-community-body">
+            <div class="nf-community-title">Telegram Group</div>
+            <div class="nf-community-meta">Chat with other fans</div>
+          </div>
+          <span class="nf-community-arrow">→</span>
+        </a>
+        <a href="https://wa.me/256702430965" target="_blank" rel="noopener" class="nf-community-card" data-brand="whatsapp">
+          <span class="nf-community-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.86 9.86 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2m0 1.67c2.2 0 4.27.86 5.82 2.42a8.2 8.2 0 0 1 2.42 5.82c0 4.54-3.7 8.23-8.24 8.23-1.48 0-2.93-.4-4.19-1.15l-.3-.18-3.12.82.83-3.04-.19-.31a8.16 8.16 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.23-8.23m-3.53 4.44c-.17 0-.45.06-.68.31s-.9.88-.9 2.15.92 2.5 1.05 2.67c.13.17 1.8 2.87 4.35 3.92 2.13.87 2.56.7 3.02.65.46-.04 1.48-.6 1.69-1.19.21-.58.21-1.08.15-1.19-.06-.1-.23-.17-.48-.29s-1.48-.73-1.71-.81c-.23-.09-.4-.13-.56.13-.17.26-.65.81-.79.98-.15.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.73-.15-.26-.02-.4.11-.53.11-.11.25-.29.37-.44.12-.15.16-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.36-.77-1.86-.2-.48-.4-.42-.56-.43l-.47-.01z"/></svg>
+          </span>
+          <div class="nf-community-body">
+            <div class="nf-community-title">WhatsApp Channel</div>
+            <div class="nf-community-meta">Updates via WhatsApp</div>
+          </div>
+          <span class="nf-community-arrow">→</span>
+        </a>
+        <a href="https://wa.me/256702430965" target="_blank" rel="noopener" class="nf-community-card" data-brand="whatsapp">
+          <span class="nf-community-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.86 9.86 0 0 0 4.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2m0 1.67c2.2 0 4.27.86 5.82 2.42a8.2 8.2 0 0 1 2.42 5.82c0 4.54-3.7 8.23-8.24 8.23-1.48 0-2.93-.4-4.19-1.15l-.3-.18-3.12.82.83-3.04-.19-.31a8.16 8.16 0 0 1-1.26-4.38c0-4.54 3.7-8.23 8.23-8.23m-3.53 4.44c-.17 0-.45.06-.68.31s-.9.88-.9 2.15.92 2.5 1.05 2.67c.13.17 1.8 2.87 4.35 3.92 2.13.87 2.56.7 3.02.65.46-.04 1.48-.6 1.69-1.19.21-.58.21-1.08.15-1.19-.06-.1-.23-.17-.48-.29s-1.48-.73-1.71-.81c-.23-.09-.4-.13-.56.13-.17.26-.65.81-.79.98-.15.17-.29.19-.54.06-.25-.12-1.05-.39-2-1.23-.74-.66-1.23-1.47-1.38-1.73-.15-.26-.02-.4.11-.53.11-.11.25-.29.37-.44.12-.15.16-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.36-.77-1.86-.2-.48-.4-.42-.56-.43l-.47-.01z"/></svg>
+          </span>
+          <div class="nf-community-body">
+            <div class="nf-community-title">WhatsApp Group</div>
+            <div class="nf-community-meta">Join the conversation</div>
+          </div>
+          <span class="nf-community-arrow">→</span>
+        </a>
+      </div>
+    </section>
+
+    
+    <section class="nf-comments">
+      <h2>Comments</h2>
+
+      <form class="nf-comment-form" id="commentForm" data-movie-id="<%= movie.id %>">
+        <input class="nf-comment-name" type="text" name="author_name" placeholder="Your name (optional)" maxlength="60" autocomplete="off">
+        <div class="nf-comment-input-wrap">
+          <textarea class="nf-comment-textarea" name="body" rows="3" maxlength="1000" placeholder="Add a comment..." required></textarea>
+          <div class="nf-comment-footer">
+            <span class="nf-char-count"><span id="charCount">0</span>/1000</span>
+            <button type="submit" class="nf-comment-submit" id="commentSubmit" disabled>Comment</button>
+          </div>
+        </div>
+      </form>
+
+      <div id="commentsList" class="nf-comments-list">
+        <% if (!comments.length) { %>
+          <p class="nf-comments-empty">No comments yet. Be the first to comment.</p>
+        <% } else { %>
+          <% comments.forEach(function (c) { %>
+            <div class="nf-comment">
+              <div class="nf-comment-avatar"><%= (c.author_name || 'A').charAt(0).toUpperCase() %></div>
+              <div class="nf-comment-content">
+                <div class="nf-comment-header">
+                  <strong><%= c.author_name %></strong>
+                  <span class="nf-comment-time"><%= c.created_at %></span>
+                </div>
+                <p class="nf-comment-body"><%= c.body %></p>
+              </div>
+            </div>
+          <% }) %>
+        <% } %>
+      </div>
+    </section>
+
+
+    <% if (similar && similar.length) { %>
+      <section class="nf-similar">
+        <h2>You might also like</h2>
+        <div class="nf-similar-grid">
+          <% similar.forEach(function (s) {
+               var sp = s.poster_key
+                 ? (s.poster_key.indexOf('http') === 0 ? s.poster_key : (process.env.R2_PUBLIC_URL || '') + '/' + s.poster_key)
+                 : null; %>
+            <a class="nf-similar-card" href="/play/<%= s.slug %>">
+              <div class="nf-similar-poster-wrap">
+                <% if (sp) { %>
+                  <img class="nf-similar-poster" src="<%= sp %>" alt="<%= s.title %>" loading="lazy">
+                  <% if (s.vj) { %><span class="card-vj-badge"><%= s.vj %></span><% } %>
+                <% } else { %>
+                  <div class="nf-similar-ph"><%= s.title.charAt(0) %></div>
+                <% } %>
+              </div>
+              <div class="nf-similar-info">
+                <div class="nf-similar-title"><%= s.title %></div>
+                <div class="nf-similar-meta">
+                  <% if (s.year) { %><span><%= s.year %></span><% } %>
+                  <% if (s.genre) { %><span><%= s.genre %></span><% } %>
+                </div>
+              </div>
+            </a>
+          <% }) %>
+        </div>
+      </section>
+    <% } %>
+  </main>
+
+  <%- include('../shared/footer', { brand: brand }) %>
+  <script src="/js/watchlist-toggle.js"></script>
+
+  <script>
+    (function () {
+      var video = document.getElementById('movieVideo');
+      var movieId = <%= movie.id %>;
+      var resumeSeconds = <%= resumeSeconds || 0 %>;
+      var lastSavedPct = -1;
+      var saveTimer = null;
+
+      function fmt(s) {
+        s = Math.floor(s || 0);
+        var h = Math.floor(s / 3600);
+        var m = Math.floor((s % 3600) / 60);
+        var sec = s % 60;
+        if (h > 0) return h + ':' + String(m).padStart(2, '0') + ':' + String(sec).padStart(2, '0');
+        return m + ':' + String(sec).padStart(2, '0');
+      }
+
+      var resumeLabel = document.getElementById('resumeTimeLabel');
+      if (resumeLabel && resumeSeconds > 0) resumeLabel.textContent = fmt(resumeSeconds);
+
+      var banner = document.getElementById('resumeBanner');
+      var btnYes = document.getElementById('resumeYes');
+      var btnNo = document.getElementById('resumeNo');
+      if (banner) {
+        btnYes.addEventListener('click', function () { video.currentTime = resumeSeconds; video.play(); banner.remove(); });
+        btnNo.addEventListener('click', function () { video.currentTime = 0; banner.remove(); });
+      }
+
+      var playBtn = document.getElementById('playBtn');
+      if (playBtn) playBtn.addEventListener('click', function () {
+        var ov = document.getElementById('videoEndOverlay');
+        if (ov) ov.hidden = true;
+        if (banner) banner.remove();
+        if (video.paused) video.play(); else video.pause();
+      });
+
+      function saveProgress(force) {
+        if (!video.duration || video.duration < 1) return;
+        var pct = Math.round((video.currentTime / video.duration) * 100);
+        if (!force && Math.abs(pct - lastSavedPct) < 3) return;
+        lastSavedPct = pct;
+        fetch('/api/history/progress', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ movie_id: movieId, progress: pct, seconds: Math.floor(video.currentTime), duration: Math.floor(video.duration) })
+        }).catch(function () {});
+      }
+
+      video.addEventListener('timeupdate', function () {
+        if (!saveTimer) saveTimer = setTimeout(function () { saveProgress(false); saveTimer = null; }, 5000);
+      });
+      video.addEventListener('pause', function () { saveProgress(true); });
+      video.addEventListener('ended', function () {
+        if (!video.duration || video.duration < 1) return;
+        if (video.currentTime < video.duration - 1 && video.currentTime > 1) return;
+
+        video.currentTime = 0;
+        saveProgress(true);
+
+        // auto-play next episode
+        var upNext = document.getElementById('upNextOverlay');
+        var endOverlay = document.getElementById('videoEndOverlay');
+
+        if (upNext) {
+          // Series with next episode: show countdown
+          upNext.hidden = false;
+          var count = 5;
+          var countEl = document.getElementById('upNextCount');
+          var nextUrl = document.getElementById('upNextPlay').getAttribute('href');
+          var countdownTimer = setInterval(function () {
+            count--;
+            if (countEl) countEl.textContent = count;
+            if (count <= 0) {
+              clearInterval(countdownTimer);
+              window.location.href = nextUrl;
+            }
+          }, 1000);
+
+          // Store timer on window so Cancel can clear it
+          window.__upNextTimer = countdownTimer;
+
+          // Cancel button
+          var cancelBtn = document.getElementById('upNextCancel');
+          if (cancelBtn) {
+            cancelBtn.addEventListener('click', function () {
+              clearInterval(countdownTimer);
+              upNext.hidden = true;
+              if (endOverlay) endOverlay.style.display = 'flex';
+            });
+          }
+        } else {
+          // No next episode: show "Movie ended"
+          if (endOverlay) endOverlay.style.display = 'flex';
+        }
+      });
+
+      // Also hide overlay immediately on page load (safety)
+      var overlayOnLoad = document.getElementById('videoEndOverlay');
+      if (overlayOnLoad) overlayOnLoad.hidden = true;
+
+      // Replay button
+      var replayBtn = document.getElementById('replayBtn');
+      var videoEndOverlay = document.getElementById('videoEndOverlay');
+      if (replayBtn) {
+        replayBtn.addEventListener('click', function () {
+          if (videoEndOverlay) videoEndOverlay.hidden = true;
+          video.play();
+        });
+      }
+
+      // Hide overlay when user starts playing
+      video.addEventListener('play', function () {
+        var ov = document.getElementById('videoEndOverlay');
+        if (ov) ov.hidden = true;
+        if (banner && resumeSeconds > 0 && video.currentTime < 1) {
+          video.currentTime = resumeSeconds;
+          banner.remove();
+        }
+      }, { once: true });
+
+      // Hide overlay on any play (native controls, keyboard, etc.)
+      video.addEventListener('play', function () {
+        var ov = document.getElementById('videoEndOverlay');
+        if (ov) ov.hidden = true;
+      });
+
+      // Star rating
+      var starWrap = document.querySelector('.nf-rating-stars');
+      if (starWrap) {
+        var stars = starWrap.querySelectorAll('.nf-star');
+        var currentRating = parseInt(starWrap.getAttribute('data-user-rating'), 10) || 0;
+        function paint(n) { stars.forEach(function (s, i) { s.classList.toggle('filled', i < n); }); }
+        stars.forEach(function (s) {
+          s.addEventListener('mouseenter', function () { paint(parseInt(s.getAttribute('data-score'), 10)); });
+          s.addEventListener('mouseleave', function () { paint(currentRating); });
+          s.addEventListener('click', function () {
+            var score = parseInt(s.getAttribute('data-score'), 10);
+            currentRating = score;
+            paint(score);
+            fetch('/api/rating', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ movie_id: movieId, score: score })
+            })
+              .then(function (r) { return r.json(); })
+              .then(function () { return fetch('/api/rating/' + movieId).then(function (r) { return r.json(); }); })
+              .then(function (d) {
+                document.getElementById('ratingBig').textContent = d.stats.avg.toFixed(1);
+                document.getElementById('ratingCount').textContent = d.stats.count + ' rating' + (d.stats.count === 1 ? '' : 's');
+              });
+          });
+        });
+      }
+
+      // Comments
+      var form = document.getElementById('commentForm');
+      var textarea = form ? form.querySelector('textarea[name="body"]') : null;
+      var charCount = document.getElementById('charCount');
+      if (textarea && charCount) textarea.addEventListener('input', function () { charCount.textContent = textarea.value.length; });
+
+      if (form) {
+        form.addEventListener('submit', function (e) {
+          e.preventDefault();
+          var fd = new FormData(form);
+          var body = (fd.get('body') || '').trim();
+          var name = (fd.get('author_name') || '').trim();
+          if (!body) return;
+          fetch('/api/comment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ movie_id: movieId, body: body, author_name: name })
+          })
+            .then(function (r) { return r.json(); })
+            .then(function (d) {
+              if (d.error) { alert(d.error); return; }
+              var list = document.getElementById('commentsList');
+              var empty = list.querySelector('.nf-comments-empty');
+              if (empty) empty.remove();
+              var div = document.createElement('div');
+              div.className = 'nf-comment';
+              div.innerHTML = '<div class="nf-comment-header"><strong>' +
+                (name || 'Anonymous') + '</strong><span class="nf-comment-time">just now</span></div>' +
+                '<p class="nf-comment-body">' + body.replace(/</g, '&lt;') + '</p>';
+              list.insertBefore(div, list.firstChild);
+              form.reset();
+              charCount.textContent = '0';
+            })
+            .catch(function () { alert('Failed to post comment'); });
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

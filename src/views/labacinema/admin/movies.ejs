@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Movies - Admin - <%= brand.name %><%= brand.suffix %></title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <%- include('../../shared/head-meta') %>
+  <link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+  <%- include('../shared/nav', { brand: brand, query: '', active: '' }) %>
+
+  <main class="nfa">
+    <header class="nfa-header">
+      <a href="/laba-panel-2026" class="nfa-back">← Back to Admin</a>
+      <h1>Manage Movies</h1>
+      <p><%= movies.length %> movie<%= movies.length === 1 ? '' : 's' %></p>
+    </header>
+
+    <div class="nfa-section-head">
+      <h2>All Movies</h2>
+      <a href="/upload" class="nfa-btn">+ Upload New</a>
+    </div>
+
+    <% if (!movies.length) { %>
+      <p class="nfa-empty">No movies yet. <a href="/upload">Upload one</a>.</p>
+    <% } else { %>
+      <div class="nfa-table">
+        <div class="nfa-row nfa-row-head">
+          <div>Poster</div>
+          <div>Title</div>
+          <div>Year</div>
+          <div>Genre</div>
+          <div>VJ</div>
+          <div>Kind</div>
+          <div>Actions</div>
+        </div>
+        <% movies.forEach(function (m) {
+             var poster = m.poster_key
+               ? (m.poster_key.indexOf('http') === 0 ? m.poster_key : (process.env.R2_PUBLIC_URL || '') + '/' + m.poster_key)
+               : null; %>
+          <div class="nfa-row">
+            <div>
+              <% if (poster) { %>
+                <img class="nfa-poster-thumb" src="<%= poster %>" alt="">
+              <% } else { %>
+                <div class="nfa-poster-thumb nfa-poster-ph"><%= m.title.charAt(0) %></div>
+              <% } %>
+            </div>
+            <div class="nfa-row-title"><%= m.title %></div>
+            <div><%= m.year || '—' %></div>
+            <div><%= m.genre || '—' %></div>
+            <div><%= m.vj || '—' %></div>
+            <div><span class="nfa-badge nfa-badge-<%= m.kind || 'movie' %>"><%= m.kind || 'movie' %></span></div>
+            <div class="nfa-row-actions">
+              <a href="/play/<%= m.slug %>" target="_blank" title="View">▶</a>
+              <a href="/laba-panel-2026/movies/<%= m.id %>/edit" title="Edit">✎</a>
+              <a href="/laba-panel-2026/movies/<%= m.id %>/upload-video" title="Upload Video">⬆</a>
+              <form method="post" action="/laba-panel-2026/movies/<%= m.id %>/delete" style="display:inline;" onsubmit="return confirm('Delete &quot;<%= m.title %>&quot;?');">
+                <button type="submit" class="nfa-delete-btn" title="Delete">×</button>
+              </form>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+
+  <%- include('../shared/footer', { brand: brand }) %>
+</body>
+</html>

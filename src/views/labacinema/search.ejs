@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title><%= query ? 'Search: ' + query : 'Search' %> - <%= brand.name %><%= brand.suffix %></title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <%- include('../shared/head-meta') %>
+</head>
+<body>
+  <%- include('../shared/nav', { brand: brand, query: query, active: '' }) %>
+
+  <%
+    function posterUrl(key) {
+      if (!key) return null;
+      if (key.indexOf('http') === 0) return key;
+      return (process.env.R2_PUBLIC_URL || '') + '/' + key;
+    }
+  %>
+
+  <main class="nf-search-page">
+    <% if (!query) { %>
+      <!-- Empty state: search prompt -->
+      <div class="nf-search-hero">
+        <h1>Search</h1>
+        <p>Find movies, series and shows on <%= brand.name %><%= brand.suffix %></p>
+        <form class="nf-search-big" action="/search" method="get">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" name="q" placeholder="Search movies, series..." autofocus autocomplete="off">
+        </form>
+      </div>
+
+    <% } else if (!resultCount) { %>
+      <!-- No results -->
+      <div class="nf-search-hero">
+        <h1>Search</h1>
+        <p>No results for "<strong><%= query %></strong>"</p>
+        <p class="nf-search-hint">Try a different title, or check the spelling.</p>
+        <form class="nf-search-big" action="/search" method="get">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="11" cy="11" r="7"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" name="q" value="<%= query %>" placeholder="Search movies, series..." autofocus autocomplete="off">
+        </form>
+        <p style="margin-top:32px;font-size:14px;color:var(--netflix-gray)">
+          Browse <a href="/movies" style="color:#fff;text-decoration:underline">all movies</a> or
+          <a href="/series" style="color:#fff;text-decoration:underline">all series</a>
+        </p>
+      </div>
+
+    <% } else { %>
+      <!-- Results -->
+      <div class="nf-search-header">
+        <h1>Results for "<%= query %>"</h1>
+        <p><%= resultCount %> title<%= resultCount === 1 ? '' : 's' %></p>
+        <form class="nf-search-inline" action="/search" method="get">
+          <input type="text" name="q" value="<%= query %>" placeholder="Search again...">
+        </form>
+      </div>
+
+      <div class="nf-search-grid">
+        <% results.forEach(function (m) {
+             var poster = posterUrl(m.poster_key); %>
+          <a class="nf-search-card" href="/play/<%= m.slug %>">
+            <div class="nf-search-poster-wrap">
+              <% if (poster) { %>
+                <img class="nf-search-poster" src="<%= poster %>" alt="<%= m.title %>" loading="lazy">
+              <% } else { %>
+                <div class="nf-search-poster nf-search-ph"><%= m.title.charAt(0) %></div>
+              <% } %>
+              <% if (m.vj) { %><span class="card-vj-badge"><%= m.vj %></span><% } %>
+              <% if (m.kind === 'series') { %><span class="nf-search-badge-type">Series</span><% } %>
+            </div>
+            <div class="nf-search-info">
+              <div class="nf-search-title"><%= m.title %></div>
+              <div class="nf-search-meta">
+                <span><%= m.year || '' %></span>
+                <% if (m.genre) { %><span><%= m.genre %></span><% } %>
+                <span class="nf-search-age"><%= m.age_rating || 'PG 13' %></span>
+              </div>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+
+  <%- include('../shared/footer', { brand: brand }) %>
+</body>
+</html>

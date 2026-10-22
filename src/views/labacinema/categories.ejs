@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Categories &amp; VJs - <%= brand.name %><%= brand.suffix %></title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <%- include('../shared/head-meta') %>
+</head>
+<body>
+  <%- include('../shared/nav', { brand: brand, query: '', active: 'categories' }) %>
+
+  <main class="browse-page">
+    <header class="browse-header">
+      <h1 class="browse-title">Discover Content</h1>
+      <p class="browse-subtitle">Browse by genre or find movies by your favorite VJ</p>
+    </header>
+
+    <div class="browse-tabs" role="tablist">
+      <button class="browse-tab active" data-tab="categories" role="tab" aria-selected="true">Categories</button>
+      <button class="browse-tab" data-tab="vjs" role="tab" aria-selected="false">VJs</button>
+    </div>
+
+    <% var genres = [
+      { slug:'action',       name:'Action',        desc:'High-octane thrills' },
+      { slug:'horror',       name:'Horror',        desc:'Spine-chilling scares' },
+      { slug:'adventure',    name:'Adventure',     desc:'Epic journeys' },
+      { slug:'love-stories', name:'Love Stories',  desc:'Romantic tales' },
+      { slug:'comedy',       name:'Comedy',        desc:'Laugh out loud' },
+      { slug:'crime',        name:'Crime',         desc:'Dark mysteries' },
+      { slug:'family',       name:'Family Movies', desc:'Fun for everyone' },
+      { slug:'sci-fi',       name:'Sci-Fi',        desc:'Extraordinary worlds' },
+      { slug:'romance',      name:'Romance',       desc:'Love & relationships' },
+      { slug:'kung-fu',      name:'Kung Fu',       desc:'Martial arts mastery' },
+      { slug:'drama',        name:'Drama',         desc:'Emotional stories' },
+      { slug:'sport',        name:'Sport',         desc:'Athletic achievements' },
+      { slug:'thriller',     name:'Thriller',      desc:'Edge-of-your-seat' },
+      { slug:'animation',    name:'Animation',     desc:'Animated adventures' }
+    ]; %>
+
+    <% var vjs = [
+      { slug:'vj-aaron', name:'Vj Aaron' }, { slug:'vj-abby', name:'Vj Abby' },
+      { slug:'vj-akaana', name:'Vj Akaana' }, { slug:'vj-arafah', name:'Vj Arafah' },
+      { slug:'vj-ashim', name:'Vj Ashim' }, { slug:'vj-banks', name:'Vj Banks' },
+      { slug:'vj-baros', name:'Vj Baros' }, { slug:'vj-bonny', name:'Vj Bonny' },
+      { slug:'vj-cabs', name:'Vj Cabs' }, { slug:'vj-cb', name:'Vj CB' },
+      { slug:'vj-dan-de', name:'Vj Dan De' }, { slug:'vj-daxx', name:'Vj Daxx' },
+      { slug:'vj-eddy', name:'Vj Eddy' }, { slug:'vj-emmy', name:'Vj Emmy' },
+      { slug:'vj-fredy', name:'Vj Fredy' }, { slug:'vj-ham', name:'Vj Ham' },
+      { slug:'vj-hd', name:'Vj Hd' }, { slug:'vj-heavy-k', name:'Vj Heavy K' },
+      { slug:'vj-heavy-q', name:'Vj Heavy Q' }, { slug:'vj-henrico', name:'Vj Henrico' },
+      { slug:'vj-ice-p', name:'Vj Ice P' }, { slug:'vj-illness', name:'Vj Illness' },
+      { slug:'vj-isma-k', name:'Vj Isma K' }, { slug:'vj-isma-pro', name:'VJ Isma Pro' },
+      { slug:'vj-ivo', name:'Vj Ivo' }, { slug:'vj-j', name:'Vj J' },
+      { slug:'vj-jabel', name:'Vj Jabel' }, { slug:'vj-jeff', name:'Vj Jeff' },
+      { slug:'vj-jimmy', name:'Vj Jimmy' }, { slug:'vj-jingo', name:'Vj Jingo' },
+      { slug:'vj-jona', name:'Vj Jona' }, { slug:'vj-jovan', name:'Vj Jovan' },
+      { slug:'vj-julio', name:'Vj Julio' }, { slug:'vj-jumpers', name:'Vj Jumpers' },
+      { slug:'vj-junior', name:'Vj Junior' }, { slug:'vj-kali', name:'Vj Kali' },
+      { slug:'vj-kam', name:'Vj Kam' }, { slug:'vj-kamran', name:'Vj Kamran' },
+      { slug:'vj-kan-man', name:'Vj Kan Man' }, { slug:'vj-karts', name:'Vj karts' },
+      { slug:'vj-kats', name:'Vj Kats' }, { slug:'vj-kevin', name:'Vj Kevin' },
+      { slug:'vj-kevo', name:'Vj Kevo' }, { slug:'vj-khan-li', name:'Vj Khan Li' },
+      { slug:'vj-kimuli', name:'Vj Kimuli' }, { slug:'vj-kin', name:'Vj Kin' },
+      { slug:'vj-kiwa', name:'Vj Kiwa' }, { slug:'vj-kk', name:'Vj Kk' },
+      { slug:'vj-kress-s', name:'Vj Kress S' }, { slug:'vj-kriss-sweet', name:'Vj Kriss Sweet' },
+      { slug:'vj-ks', name:'Vj KS' }, { slug:'vj-lance', name:'Vj Lance' },
+      { slug:'vj-lash', name:'Vj Lash' }, { slug:'vj-light', name:'Vj Light' },
+      { slug:'vj-little-t', name:'Vj Little T' }, { slug:'vj-luganda', name:'Vj Luganda' },
+      { slug:'vj-madava', name:'Vj Madava' }, { slug:'vj-mangi', name:'Vj Mangi' },
+      { slug:'vj-mark', name:'VJ Mark' }, { slug:'vj-martin-k', name:'Vj Martin K' },
+      { slug:'vj-mk-kisule', name:'Vj MK Kisule' }, { slug:'vj-moon', name:'Vj Moon' },
+      { slug:'vj-mosco', name:'Vj Mosco' }, { slug:'vj-mox', name:'Vj Mox' },
+      { slug:'vj-muba', name:'Vj Muba' }, { slug:'vj-mubs', name:'Vj Mubs' },
+      { slug:'vj-mukiibi', name:'Vj Mukiibi' }, { slug:'vj-mun', name:'Vj Mun' },
+      { slug:'vj-musa', name:'Vj Musa' }, { slug:'vj-n', name:'Vj N' },
+      { slug:'vj-narts', name:'Vj Narts' }, { slug:'vj-nasa', name:'Vj Nasa' },
+      { slug:'vj-neil', name:'VJ Neil' }, { slug:'vj-nelly', name:'Vj Nelly' },
+      { slug:'vj-o3', name:'Vj O3' }, { slug:'vj-pauleta', name:'Vj Pauleta' },
+      { slug:'vj-pax', name:'Vj Pax' }, { slug:'vj-phoenix', name:'Vj Phoenix' },
+      { slug:'vj-raj', name:'Vj Raj' }, { slug:'vj-raji', name:'Vj Raji' },
+      { slug:'vj-rajiv', name:'Vj Rajiv' }, { slug:'vj-ricky', name:'Vj Ricky' },
+      { slug:'vj-roddy', name:'Vj Roddy' }, { slug:'vj-ronage', name:'Vj Ronage' },
+      { slug:'vj-ronnie', name:'Vj Ronnie' }, { slug:'vj-ryan', name:'VJ Ryan' },
+      { slug:'vj-sahin', name:'Vj Sahin' }, { slug:'vj-sammy', name:'Vj Sammy' },
+      { slug:'vj-sammy-lee', name:'Vj Sammy Lee' }, { slug:'vj-shao-khan', name:'Vj Shao Khan' },
+      { slug:'vj-sharz', name:'Vj Sharz' }, { slug:'vj-shield', name:'VJ Shield' },
+      { slug:'vj-shivo', name:'Vj Shivo' }, { slug:'vj-silver', name:'Vj Silver' },
+      { slug:'vj-smk', name:'Vj Smk' }, { slug:'vj-son', name:'Vj Son' },
+      { slug:'vj-son-k', name:'Vj Son K' }, { slug:'vj-soul', name:'Vj Soul' },
+      { slug:'vj-tan', name:'Vj Tan' }, { slug:'vj-tom', name:'Vj Tom' },
+      { slug:'vj-tonny', name:'Vj Tonny' }, { slug:'vj-ulio', name:'Vj Ulio' },
+      { slug:'vj-uncle-t', name:'Vj Uncle T' }, { slug:'vj-waza', name:'Vj Waza' },
+      { slug:'vj-yat', name:'Vj Yat' }, { slug:'vj-young-blad', name:'Vj Young Blad' },
+      { slug:'vj-zaidi', name:'Vj Zaidi' }, { slug:'vj-zico-pro', name:'Vj Zico Pro' }
+    ]; %>
+
+    <section class="browse-panel active" data-panel="categories">
+      <div class="browse-grid">
+        <% genres.forEach(function(g){ %>
+          <a class="browse-card" href="/movies?cat=<%= g.slug %>">
+            <div class="browse-card-body">
+              <h3 class="browse-card-title"><%= g.name %></h3>
+              <p class="browse-card-desc"><%= g.desc %></p>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    </section>
+
+    <section class="browse-panel" data-panel="vjs">
+      <div class="vj-search-wrap">
+        <input type="text" id="vjSearch" class="vj-search" placeholder="Search VJs...">
+      </div>
+      <div class="vj-grid" id="vjGrid">
+        <% vjs.forEach(function(v){ %>
+          <a class="vj-chip" href="/movies?vj=<%= v.slug %>" data-name="<%= v.name.toLowerCase() %>">
+            <span class="vj-avatar"><%= v.name.replace(/^Vj\s+|^VJ\s+/i, '').charAt(0) %></span>
+            <span class="vj-name"><%= v.name %></span>
+          </a>
+        <% }) %>
+      </div>
+      <p id="vjNoResults" class="vj-no-results" style="display:none;">No VJs match your search</p>
+    </section>
+  </main>
+
+  <%- include('../shared/footer', { brand: brand }) %>
+
+  <script>
+    (function () {
+      var tabs = document.querySelectorAll('.browse-tab');
+      var panels = document.querySelectorAll('.browse-panel');
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          var target = tab.getAttribute('data-tab');
+          tabs.forEach(function (t) {
+            t.classList.toggle('active', t === tab);
+            t.setAttribute('aria-selected', t === tab ? 'true' : 'false');
+          });
+          panels.forEach(function (p) {
+            p.classList.toggle('active', p.getAttribute('data-panel') === target);
+          });
+        });
+      });
+
+      // VJ search
+      var search = document.getElementById('vjSearch');
+      var grid = document.getElementById('vjGrid');
+      var noResults = document.getElementById('vjNoResults');
+      if (search && grid) {
+        search.addEventListener('input', function () {
+          var q = search.value.toLowerCase().trim();
+          var visible = 0;
+          grid.querySelectorAll('.vj-chip').forEach(function (chip) {
+            var name = chip.getAttribute('data-name') || '';
+            if (!q || name.indexOf(q) !== -1) {
+              chip.style.display = '';
+              visible++;
+            } else {
+              chip.style.display = 'none';
+            }
+          });
+          if (noResults) noResults.style.display = (visible === 0 && q) ? 'block' : 'none';
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

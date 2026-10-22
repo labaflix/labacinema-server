@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Watch History - <%= brand.name %><%= brand.suffix %></title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <%- include('../shared/head-meta') %>
+</head>
+<body>
+  <%- include('../shared/nav', { brand: brand, query: '', active: 'history' }) %>
+
+  <main class="nf-mylist">
+    <header class="nf-mylist-header">
+      <h1>Watch History</h1>
+      <p>Recently watched on this device</p>
+      <% if (items.length) { %>
+        <button class="nf-mylist-clear" id="clearHistoryBtn">Clear all</button>
+      <% } %>
+    </header>
+
+    <% if (!items.length) { %>
+      <div class="nf-mylist-empty">
+        <h2>No watch history</h2>
+        <p>Movies you watch will appear here, so you can pick up where you left off.</p>
+        <a href="/" class="nf-mylist-btn">Find something to watch</a>
+      </div>
+    <% } else { %>
+      <div class="nf-mylist-grid">
+        <% items.forEach(function (m) {
+             var poster = m.poster_key
+               ? (m.poster_key.indexOf('http') === 0 ? m.poster_key : (process.env.R2_PUBLIC_URL || '') + '/' + m.poster_key)
+               : null;
+             var pct = Math.min(100, Math.max(0, m.progress || 0)); %>
+          <div class="nf-tile" data-movie-id="<%= m.id %>">
+            <a href="/play/<%= m.slug %>" class="nf-tile-link">
+              <% if (poster) { %>
+                <img class="nf-tile-poster" src="<%= poster %>" alt="<%= m.title %>">
+              <% } else { %>
+                <div class="nf-tile-poster nf-tile-ph"><%= m.title.charAt(0) %></div>
+              <% } %>
+              <% if (pct > 0 && pct < 100) { %>
+                <div class="nf-tile-progress"><div class="nf-tile-progress-fill" style="width:<%= pct %>%"></div></div>
+              <% } %>
+            </a>
+
+            <div class="nf-tile-overlay">
+              <div class="nf-tile-title"><%= m.title %></div>
+                <% if (m.progress > 0 && m.progress < 95 && m.progress_seconds > 0) {
+                     var s = Math.floor(m.progress_seconds || 0);
+                     var hh = Math.floor(s/3600), mm = Math.floor((s%3600)/60), ss = s%60;
+                     var label = hh > 0 ? hh+':'+String(mm).padStart(2,'0')+':'+String(ss).padStart(2,'0') : mm+':'+String(ss).padStart(2,'0');
+                   %>
+                  <div class="nf-tile-resume">Resume from <%= label %></div>
+                <% } %>
+              <div class="nf-tile-meta">
+                <% if (m.year) { %><span><%= m.year %></span><% } %>
+                <% if (m.genre) { %><span class="nf-tile-tag"><%= m.genre %></span><% } %>
+                <span class="nf-tile-tag nf-tile-hd">HD</span>
+              </div>
+              <div class="nf-tile-actions">
+                <a href="/play/<%= m.slug %>" class="nf-tile-play" aria-label="Play">▶</a>
+                <button class="nf-tile-remove" data-movie-id="<%= m.id %>" aria-label="Remove from history">×</button>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      </div>
+    <% } %>
+  </main>
+
+  <%- include('../shared/footer', { brand: brand }) %>
+
+  <script>
+    (function () {
+      function post(url, body) {
+        return fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body || {})
+        }).then(function (r) { return r.json(); });
+      }
+
+      var clearBtn = document.getElementById('clearHistoryBtn');
+      if (clearBtn) {
+        clearBtn.addEventListener('click', function () {
+          if (!confirm('Clear all watch history?')) return;
+          post('/api/history/clear', {}).then(function (res) {
+            if (res.ok) location.reload();
+          });
+        });
+      }
+
+      document.querySelectorAll('.nf-tile-remove').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var id = btn.getAttribute('data-movie-id');
+          post('/api/history/remove', { movie_id: parseInt(id, 10) }).then(function (res) {
+            if (res.ok) {
+              var tile = document.querySelector('.nf-tile[data-movie-id="' + id + '"]');
+              if (tile) {
+                tile.style.transition = 'opacity .25s, transform .25s';
+                tile.style.opacity = '0';
+                tile.style.transform = 'scale(.92)';
+                setTimeout(function () {
+                  tile.remove();
+                  if (!document.querySelector('.nf-tile')) location.reload();
+                }, 260);
+              }
+            }
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

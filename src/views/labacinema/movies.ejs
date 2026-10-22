@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Movies - <%= brand.name %><%= brand.suffix %></title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <%- include('../shared/head-meta') %>
+</head>
+<body>
+  <%- include('../shared/nav', { brand: brand, query: query, active: 'movies' }) %>
+
+  <% if (!isFiltered) { %>
+    <!-- Same "banner" style as series page -->
+      <% if (heroMovies && heroMovies.length && !isFiltered) { %>
+    <section class="hero" id="heroCarousel">
+      <% heroMovies.forEach(function (m, i) {
+           var poster = m.poster_key
+             ? (m.poster_key.indexOf('http') === 0 ? m.poster_key : (process.env.R2_PUBLIC_URL || '') + '/' + m.poster_key)
+             : ''; %>
+        <div class="hero-slide <%= i === 0 ? 'active' : '' %>" data-slide="<%= i %>">
+          <div class="hero-bg" style="background-image: url('<%= poster %>');"></div>
+          <div class="hero-content">
+            <span class="hero-badge">MOVIE</span>
+            <h1 class="hero-title"><%= m.title %></h1>
+            <div class="hero-meta">
+              <span class="match">98% Match</span>
+              <% if (m.year) { %><span><%= m.year %></span><% } %>
+              <% if (m.genre) { %><span><%= m.genre %></span><% } %>
+              <span>HD</span>
+              <% if (m.vj) { %><span class="hero-vj"><%= m.vj %></span><% } %>
+            </div>
+            <p class="hero-desc"><%= m.description || ('Stream this movie now — free on ' + brand.name + brand.suffix + '.') %></p>
+            <div class="hero-actions">
+              <a href="/play/<%= m.slug %>" class="btn-play">Play</a>
+              <a href="/play/<%= m.slug %>" class="btn-info">More Info</a>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+      <% if (heroMovies.length > 1) { %>
+        <div class="hero-dots">
+          <% heroMovies.forEach(function (_, i) { %>
+            <button class="hero-dot <%= i === 0 ? 'active' : '' %>" data-go="<%= i %>" aria-label="Slide <%= i + 1 %>"></button>
+          <% }) %>
+        </div>
+      <% } %>
+    </section>
+  <% } else if (!isFiltered) { %>
+    <!-- Fallback: no movies yet -->
+  <% } %>
+  <% } %>
+
+  <main class="nf-series-page">
+    <% if (isFiltered) { %>
+      <section class="nf-row-section">
+        <h2 class="nf-row-title">
+          <% if (query) { %>Search: "<%= query %>"
+          <% } else if (genre) { %><%= genre.charAt(0).toUpperCase() + genre.slice(1) %>
+          <% } else if (category) { %><%= category.charAt(0).toUpperCase() + category.slice(1) %>
+          <% } else { %>Movies<% } %>
+        </h2>
+        <div class="nf-grid-five">
+          <% allMovies.forEach(function (m) {
+               var poster = m.poster_key
+                 ? (m.poster_key.indexOf('http') === 0 ? m.poster_key : (process.env.R2_PUBLIC_URL || '') + '/' + m.poster_key)
+                 : null; %>
+            <div class="card-wrap">
+              <button class="nf-heart-btn" data-movie-id="<%= m.id %>" aria-label="Add to list">♡</button>
+              <a class="card" href="/play/<%= m.slug %>">
+                  <% if (poster) { %>
+                    <div class="card-poster-wrap">
+                      <img class="card-poster" src="<%= poster %>" alt="<%= m.title %>" loading="lazy">
+                      <% if (m.vj) { %><span class="card-vj-badge"><%= m.vj %></span><% } %>
+                    </div>
+                  <% } else { %>
+                    <div class="card-poster-ph"><%= m.title.charAt(0) %></div>
+                  <% } %>
+                  <div class="card-info-visible">
+                    <div class="card-title"><%= m.title %></div>
+                    <div class="card-meta">
+                      <span><%= m.year || '' %></span>
+                      <% if (m.genre) { %><span class="card-genre">· <%= m.genre %></span><% } %>
+                    </div>
+                  </div>
+                </a>
+            </div>
+          <% }) %>
+        </div>
+      </section>
+
+    <% } else if (rows && rows.length) { %>
+      <% rows.forEach(function (row) { %>
+        <section class="nf-row-section">
+          <h2 class="nf-row-title"><%= row.title %></h2>
+          <div class="nf-grid-five">
+            <% row.movies.forEach(function (m) {
+                 var poster = m.poster_key
+                   ? (m.poster_key.indexOf('http') === 0 ? m.poster_key : (process.env.R2_PUBLIC_URL || '') + '/' + m.poster_key)
+                   : null; %>
+              <div class="card-wrap">
+                <button class="nf-heart-btn" data-movie-id="<%= m.id %>" aria-label="Add to list">♡</button>
+                <a class="card" href="/play/<%= m.slug %>">
+                  <% if (poster) { %>
+                    <div class="card-poster-wrap">
+                      <img class="card-poster" src="<%= poster %>" alt="<%= m.title %>" loading="lazy">
+                      <% if (m.vj) { %><span class="card-vj-badge"><%= m.vj %></span><% } %>
+                    </div>
+                  <% } else { %>
+                    <div class="card-poster-ph"><%= m.title.charAt(0) %></div>
+                  <% } %>
+                  <div class="card-info-visible">
+                    <div class="card-title"><%= m.title %></div>
+                    <div class="card-meta">
+                      <span><%= m.year || '' %></span>
+                      <% if (m.genre) { %><span class="card-genre">· <%= m.genre %></span><% } %>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            <% }) %>
+          </div>
+        </section>
+      <% }) %>
+    <% } %>
+
+    
+  </main>
+
+  <%- include('../shared/footer', { brand: brand }) %>
+  <script src="/js/watchlist-toggle.js"></script>
+<script>
+      (function () {
+        var carousel = document.getElementById('heroCarousel');
+        if (!carousel) return;
+        var slides = carousel.querySelectorAll('.hero-slide');
+        var dots = carousel.querySelectorAll('.hero-dot');
+        if (slides.length < 2) return;
+        var current = 0, timer = null;
+        function show(i) {
+          slides.forEach(function (s, k) { s.classList.toggle('active', k === i); });
+          dots.forEach(function (d, k) { d.classList.toggle('active', k === i); });
+          current = i;
+        }
+        function next() { show((current + 1) % slides.length); }
+        function start() { stop(); timer = setInterval(next, 8000); }
+        function stop() { if (timer) { clearInterval(timer); timer = null; } }
+        dots.forEach(function (d, i) {
+          d.addEventListener('click', function () { show(i); start(); });
+        });
+        carousel.addEventListener('mouseenter', stop);
+        carousel.addEventListener('mouseleave', start);
+        start();
+      })();
+    </script>
+  </body>
+</html>

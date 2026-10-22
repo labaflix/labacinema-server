@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Upload - <%= brand.name %><%= brand.suffix %></title>
+  <link rel="stylesheet" href="/css/labacinema.css">
+  <%- include('../shared/head-meta') %>
+</head>
+<body>
+  <%- include('../shared/nav', { brand: brand, query: '', active: '' }) %>
+
+  <main class="nf-upload-page">
+    <header class="nf-upload-hero">
+      <h1>Upload a movie</h1>
+      <p>Drop your MP4 and poster — both upload straight to R2 storage.</p>
+    </header>
+
+    <div class="nf-upload-grid">
+      <!-- Video upload card -->
+      <div class="nf-upload-card" id="videoCard">
+        <h2>1. Video file</h2>
+        <p class="nf-upload-hint">MP4, up to 2 GB</p>
+        <div class="nf-dropzone" id="videoDrop">
+          <input type="file" id="videoInput" accept="video/mp4,video/*" hidden>
+          <div class="nf-dropzone-inner">
+            <div class="nf-dropzone-icon">🎞️</div>
+            <div class="nf-dropzone-text">
+              <strong>Drag &amp; drop</strong> video here<br>
+              or <span class="nf-dropzone-link">click to browse</span>
+            </div>
+          </div>
+          <div class="nf-upload-progress" id="videoProgress" hidden>
+            <div class="nf-progress-bar"><div class="nf-progress-fill" id="videoFill"></div></div>
+            <div class="nf-progress-label" id="videoStatus">0%</div>
+          </div>
+        </div>
+        <div class="nf-upload-meta" id="videoMeta" hidden>
+          <span class="nf-upload-done">Uploaded</span>
+          <span class="nf-upload-key" id="videoKey"></span>
+        </div>
+      </div>
+
+      <!-- Poster upload card -->
+      <div class="nf-upload-card" id="posterCard">
+        <h2>2. Poster image</h2>
+        <p class="nf-upload-hint">JPG/PNG, 2:3 aspect ratio recommended</p>
+        <div class="nf-dropzone" id="posterDrop">
+          <input type="file" id="posterInput" accept="image/*" hidden>
+          <div class="nf-dropzone-inner">
+            <div class="nf-dropzone-icon">🖼️</div>
+            <div class="nf-dropzone-text">
+              <strong>Drag &amp; drop</strong> poster here<br>
+              or <span class="nf-dropzone-link">click to browse</span>
+            </div>
+          </div>
+          <div class="nf-upload-progress" id="posterProgress" hidden>
+            <div class="nf-progress-bar"><div class="nf-progress-fill" id="posterFill"></div></div>
+            <div class="nf-progress-label" id="posterStatus">0%</div>
+          </div>
+        </div>
+        <div class="nf-upload-meta" id="posterMeta" hidden>
+          <span class="nf-upload-done">Uploaded</span>
+          <span class="nf-upload-key" id="posterKey"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Movie details form -->
+    <form class="nf-upload-form" id="movieForm">
+      <h2>3. Movie details</h2>
+      <div class="nf-form-grid">
+        <label class="nf-field">
+          <span>Title *</span>
+          <input type="text" name="title" required placeholder="e.g. Inception">
+        </label>
+        <label class="nf-field">
+          <span>Year</span>
+          <input type="number" name="year" placeholder="2010" min="1900" max="2100">
+        </label>
+        <label class="nf-field">
+          <span>Genre</span>
+          <input type="text" name="genre" placeholder="Sci-Fi">
+        </label>
+        <label class="nf-field">
+          <span>VJ (translator)</span>
+          <input type="text" name="vj" placeholder="VJ Junior" maxlength="60">
+        </label>
+        <label class="nf-field">
+          <span>Slug (URL)</span>
+          <input type="text" name="slug" placeholder="auto from title if empty">
+        </label>
+      </div>
+      <label class="nf-field">
+        <span>Description</span>
+        <textarea name="description" rows="3" placeholder="Short plot summary..."></textarea>
+      </label>
+
+      <div class="nf-upload-actions">
+        <button type="submit" class="nf-report-submit" id="submitBtn" disabled>Save movie</button>
+        <span class="nf-upload-msg" id="formMsg"></span>
+      </div>
+    </form>
+  </main>
+
+  <script src="/js/upload.js"></script>
+  <%- include('../shared/footer', { brand: brand }) %>
+</body>
+</html>
